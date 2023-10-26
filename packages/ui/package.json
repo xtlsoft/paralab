@@ -13,6 +13,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@mdi/font": "^7.3.67",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6",
     "vuetify": "^3.3.22"
