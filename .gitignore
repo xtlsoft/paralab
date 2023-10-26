@@ -141,4 +141,4 @@ dist
 dev-test/
 
 # Golang binaries
-packages/paraci/dist
+dist
