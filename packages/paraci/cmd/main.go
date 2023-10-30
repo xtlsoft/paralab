@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/lcpu-club/paralab/packages/paraci/agent"
 	"github.com/lcpu-club/paralab/packages/paraci/version"
 	"github.com/urfave/cli/v2"
 )
@@ -18,7 +19,20 @@ func main() {
 	for _, author := range version.Authors {
 		app.Authors = append(app.Authors, &cli.Author{Name: author[0], Email: author[1]})
 	}
-	// TODO: add commands
+
+	// Sub command agent will run NewAgent().Listen()
+	app.Commands = []*cli.Command{
+		{
+			Name:  "agent",
+			Usage: "Run paraci agent",
+			Action: func(ctx *cli.Context) error {
+				agent := agent.NewAgent()
+				agent.Listen()
+				return nil
+			},
+		},
+	}
+
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatalln(err)
