@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	paraci_models "github.com/lcpu-club/paralab/packages/paraci/models"
 )
 
 type Configure struct {
@@ -17,18 +19,8 @@ type PullConfigure struct {
 	Key     string   `yaml:"key"`
 }
 
-type OSSConfigure struct {
-	Endpoint  string            `yaml:"endpoint"`
-	AccessKey string            `yaml:"access_key"`
-	SecretKey string            `yaml:"secret_key"`
-	Buckets   *BucketsConfigure `yaml:"buckets"`
-}
-
-type BucketsConfigure struct {
-	Problems  string `yaml:"problems"`
-	Solutions string `yaml:"solutions"`
-	Artifacts string `yaml:"artifacts"`
-}
+type OSSConfigure paraci_models.OSSConfigure
+type BucketsConfigure paraci_models.BucketsConfigure
 
 type IntervalConfigure struct {
 	Min time.Duration `yaml:"min"`

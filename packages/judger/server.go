@@ -40,6 +40,7 @@ func NewServer(conf *models.Configure) *Server {
 			conf.Pull.Key, 10*time.Second),
 		maxConcurrent:  int32(maxConcurrent),
 		currConcurrent: 0,
+		finChan:        make(chan struct{}, maxConcurrent),
 	}
 }
 
@@ -70,6 +71,7 @@ func (s *Server) Start() error {
 		intervalUnit = 0
 
 		for _, m := range msg {
+			atomic.AddInt32(&s.currConcurrent, 1)
 			go s.handleMsgWrapper(m)
 		}
 	}
