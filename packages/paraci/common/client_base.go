@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -106,18 +107,18 @@ func (c *ClientBase) GetPool() AddrPool {
 	return c.pool
 }
 
-func (c *ClientBase) SignRequest(method string, endpoint string, body []byte) string {
-	hasher := hmac.New(sha256.New, c.key)
-	now := time.Now().UTC().Unix()
+func signRequest(key []byte, now int64, method string, endpoint string) string {
+	hasher := hmac.New(sha256.New, key)
 	nowBytes := (*(*[8]byte)(unsafe.Pointer(&now)))[:]
 	hasher.Write(nowBytes)
 	hasher.Write([]byte(method))
 	hasher.Write([]byte(endpoint))
-	if body != nil {
-		hasher.Write(body)
-	}
-	return base64.StdEncoding.EncodeToString(nowBytes) +
+	return hex.EncodeToString(nowBytes) +
 		base64.StdEncoding.EncodeToString(hasher.Sum(nil))
+}
+
+func (c *ClientBase) SignRequest(method string, endpoint string) string {
+	return signRequest(c.key, time.Now().UTC().Unix(), method, endpoint)
 }
 
 func (c *ClientBase) EndpointToURL(endpoint string) (string, error) {
@@ -153,7 +154,7 @@ func (c *ClientBase) Do(method string, endpoint string, body []byte) ([]byte, er
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("X-ParaCI-Signature", c.SignRequest(method, endpoint, body))
+	req.Header.Set("X-ParaCI-Signature", c.SignRequest(method, endpoint))
 	resp, err := c.hc.Do(req)
 	if err != nil {
 		// TODO: add fail mechanism
@@ -177,7 +178,7 @@ func (c *ClientBase) DoStream(method string, endpoint string, body io.Reader) (*
 		return nil, err
 	}
 	req.Header.Set("User-Agent", "paraci")
-	req.Header.Set("X-ParaCI-Signature", c.SignRequest(method, endpoint, nil))
+	req.Header.Set("X-ParaCI-Signature", c.SignRequest(method, endpoint))
 	return c.hc.Do(req)
 }
 
@@ -195,7 +196,7 @@ func (c *ClientBase) Download(method string, endpoint string,
 		return nil, nil, err
 	}
 	req.HTTPRequest.Body = io.NopCloser(bytes.NewBuffer(body))
-	req.HTTPRequest.Header.Set("X-ParaCI-Signature", c.SignRequest(method, endpoint, body))
+	req.HTTPRequest.Header.Set("X-ParaCI-Signature", c.SignRequest(method, endpoint))
 	resp := g.Do(req)
 	if err := resp.Err(); err != nil {
 		return nil, nil, err

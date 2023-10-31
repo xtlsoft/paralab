@@ -57,5 +57,7 @@ func (e *StarlarkEngine) declareEnvs() star.StringDict {
 	addFn("result", e.result)
 	addFn("sleep", e.sleep)
 
+	addFn("run_user_code", e.runUserCode)
+
 	return env
 }
