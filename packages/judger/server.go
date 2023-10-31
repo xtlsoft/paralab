@@ -73,6 +73,11 @@ func (s *Server) Start() error {
 		for _, m := range msg {
 			atomic.AddInt32(&s.currConcurrent, 1)
 			go s.handleMsgWrapper(m)
+			// NOTE(intlsy): The following line is a hotfix.
+			// Here we wait for the goroutine to finish due to that the bizserver
+			// does not mark a job as "running" when it is pulled (and I do not
+			// have time for studying database locks).
+			<-s.finChan
 		}
 	}
 }
@@ -87,7 +92,7 @@ func (s *Server) pull(limit int) ([]*models.PullMessage, error) {
 }
 
 func (s *Server) PushResult(result *models.ResultMessage) error {
-	return s.cb.Post(jobsEndpoint, result, nil)
+	return s.cb.Put(jobsEndpoint, result, nil)
 }
 
 func (s *Server) handleMsgWrapper(msg *models.PullMessage) {

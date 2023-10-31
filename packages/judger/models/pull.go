@@ -18,7 +18,7 @@ const (
 
 type ResultMessage struct {
 	ID     int64       `json:"id"`
-	Status string      `json:"status"`
+	Status string      `json:"verdict"`
 	Result *ResultBody `json:"result"`
 }
 

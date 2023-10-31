@@ -236,7 +236,10 @@ func (c *ClientBase) Put(endpoint string, body interface{}, rslt interface{}) er
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(b, rslt)
+	if rslt != nil {
+		return json.Unmarshal(b, rslt)
+	}
+	return nil
 }
 
 func (c *ClientBase) Delete(endpoint string, rslt interface{}) error {
@@ -244,5 +247,8 @@ func (c *ClientBase) Delete(endpoint string, rslt interface{}) error {
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(b, rslt)
+	if rslt != nil {
+		return json.Unmarshal(b, rslt)
+	}
+	return nil
 }

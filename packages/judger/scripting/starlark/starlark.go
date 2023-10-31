@@ -61,3 +61,9 @@ func (e *StarlarkEngine) declareEnvs() star.StringDict {
 
 	return env
 }
+
+func init() {
+	scripting.RegisterEngine(func() scripting.ScriptEngine {
+		return NewStarlarkEngine()
+	})
+}
