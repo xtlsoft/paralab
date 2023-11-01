@@ -12,6 +12,8 @@ interface Env {
   POSTGRES_PASSWORD: string;
   POSTGRES_SYNCHRONIZE: boolean;
 
+  REDIS_URL: string;
+
   BCRYPT_ROUNDS: number;
 
   JWT_SECRET: string;
@@ -36,6 +38,8 @@ const env: Env = {
   POSTGRES_USER: getEnv('POSTGRES_USER'),
   POSTGRES_PASSWORD: getEnv('POSTGRES_PASSWORD'),
   POSTGRES_SYNCHRONIZE: getEnv('POSTGRES_SYNCHRONIZE') === 'true',
+
+  REDIS_URL: getEnv('REDIS_URL'),
 
   BCRYPT_ROUNDS: parseInt(getEnv('BCRYPT_ROUNDS')),
 
