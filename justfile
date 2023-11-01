@@ -20,3 +20,13 @@ greet:
   @echo "    - node:   $(node --version | sed 's/v//')"
   @echo "    - golang: $(go version | awk '{ print $3 }' | sed 's/go//')"
   @echo ""
+
+# ParaCI Build
+
+ci-build: ci-build-agent
+    
+mkdir-dist:
+    mkdir -p dist
+
+ci-build-agent: mkdir-dist
+    go build -o dist/paraci-agent github.com/lcpu-club/paralab/packages/paraci/cmd/agent
