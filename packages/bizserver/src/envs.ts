@@ -15,9 +15,11 @@ interface Env {
   REDIS_URL: string;
 
   BCRYPT_ROUNDS: number;
-
   JWT_SECRET: string;
   JWT_REFRESH_TOKEN_TIMEOUT_SECEONDS: number;
+  JWT_ACCESS_TOKEN_TIMEOUT_SECEONDS: number;
+
+  COOKIE_SECRET: string;
 }
 
 function getEnv(name: string): string {
@@ -42,9 +44,11 @@ const env: Env = {
   REDIS_URL: getEnv('REDIS_URL'),
 
   BCRYPT_ROUNDS: parseInt(getEnv('BCRYPT_ROUNDS')),
-
   JWT_SECRET: getEnv('JWT_SECRET'),
   JWT_REFRESH_TOKEN_TIMEOUT_SECEONDS: parseInt(getEnv('JWT_REFRESH_TOKEN_TIMEOUT_SECEONDS')),
+  JWT_ACCESS_TOKEN_TIMEOUT_SECEONDS: parseInt(getEnv('JWT_ACCESS_TOKEN_TIMEOUT_SECEONDS')),
+
+  COOKIE_SECRET: getEnv('COOKIE_SECRET'),
 };
 
 export default env;

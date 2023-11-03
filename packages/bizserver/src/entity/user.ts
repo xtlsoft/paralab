@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { RoleMask } from '@paralab/proto/src/user';
 
 @Entity()
-export class User extends BaseEntity {
+export class UserEntity extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number
 
@@ -9,12 +10,15 @@ export class User extends BaseEntity {
 	name: string
 
 	@Column()
-	register_time: Date
+	registerTime: Date
 
 	@Column()
 	password: string
 
-	@Column("simple-json")	// TODO bson
+	@Column()
+	roleMask: RoleMask
+
+	@Column("jsonb")
 	metadata: {
 		motto: string
 		email: string
