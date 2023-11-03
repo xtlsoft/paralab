@@ -13,16 +13,20 @@ const router = createRouter({
       component: () => import('../views/ProblemListView.vue')
     },
     {
-      path: '/problem/:problemid',
+      path: '/problem/:problemid(\\d+)',
       component: () => import('../views/ProblemDetailView.vue')
     },
     {
-      path: '/submit/:problemid',
+      path: '/submit/:problemid(\\d+)',
       component: () => import('../views/SubmitCodeView.vue')
     },
     {
-      path: '/user/:userid',
+      path: '/user/:userId(\\d+)',
       component: () => import('../views/UserProfileView.vue')
+    },
+    {
+      path: '/user/:userId(\\d+)/edit',
+      component: () => import('../views/EditUserProfileView.vue')
     },
     {
       path: '/login',

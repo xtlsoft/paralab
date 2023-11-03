@@ -32,7 +32,7 @@ function onClickLogout() {
 				<template v-slot:activator="{ props }">
 					<v-btn
 					v-bind="props"
-								append-icon="mdi-menu-down"
+					append-icon="mdi-menu-down"
 					>
 					{{ user?.name ?? "未登录" }}
 					</v-btn>

@@ -92,7 +92,7 @@ export class UserService {
     };
   }
 
-  async getAccessToken(refresh_token: string | null): Promise<{access_token: string}> {
+  async getAccessToken(refresh_token: string | null): Promise<string> {
     // First we validate the refresh token
     if (!refresh_token) {
       throw new BadRequestException('refresh token not found');
@@ -114,9 +114,7 @@ export class UserService {
     const access_token_str = jwt.sign(access_token, env.JWT_SECRET, {
       expiresIn: env.JWT_ACCESS_TOKEN_TIMEOUT_SECEONDS,
     });
-    return {
-      'access_token': access_token_str
-    };
+    return access_token_str;
   }
 
   async invalidateRefreshToken(refresh_token: string) {
@@ -132,6 +130,44 @@ export class UserService {
     // Then we delete the refresh token from redis
     redisClient.hDel('refresh_tokens', refresh_token);
   }
+
+  async updateUserInfo(userId: number, new_data: {email: string, motto: string}) {
+    const user_in_db = await UserEntity.findOneBy({ id: userId });
+    if (!user_in_db) {
+      throw new BadRequestException('user not found');
+    }
+    user_in_db.metadata.email = new_data.email;
+    user_in_db.metadata.motto = new_data.motto;
+    await user_in_db.save();
+  }
+
+  async updateUserPassword(userId: number, dto: {old_password: string, new_password: string}) {
+    const user_in_db = await UserEntity.findOneBy({ id: userId });
+    if (!user_in_db) {
+      throw new BadRequestException('user not found');
+    }
+    // Check whether the old password is correct
+    const is_password_correct = bcrypt.compareSync(dto.old_password, user_in_db.password);
+    if (!is_password_correct) {
+      throw new BadRequestException('password incorrect');
+    }
+    // Update the password
+    const password_hash: string = await bcrypt.hash(dto.new_password, BCRYPT_ROUNDS);
+    user_in_db.password = password_hash;
+    await user_in_db.save();
+  }
+
+  async updateUserRoles(userId: number, refresh_token: string, new_roles: RoleMask) {
+    const user_in_db = await UserEntity.findOneBy({ id: userId });
+    if (!user_in_db) {
+      throw new BadRequestException('user not found');
+    }
+    user_in_db.roleMask = new_roles;
+    // WARNING Since we've cached the user's role mask in Redis, the user whose
+    // roles are modified needs to re-login to make the new roles take effect.
+    // TODO Find a way to force the user to re-login
+    await user_in_db.save();
+  }   
 }
 
 

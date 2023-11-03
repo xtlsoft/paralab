@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import user from '../user_data'
+import { tryLogin, fetchWithAuthInJson } from "../api/authorization";
 import { ref } from 'vue'
 
 let form = ref(false)
@@ -8,10 +8,19 @@ let password = ref(null)
 let loading = ref(false)
 
 function onSubmit() {
-	console.log("onSubmit")
 	if (!form.value) {
 		alert("表单未填写完整")
 		return
+	}
+	try {
+		tryLogin(username.value!, password.value!).then(() => {
+			window.location.href = "/"
+		}).catch((e) => {
+			alert(e)
+		})
+
+	} catch (e) {
+		alert(e)
 	}
 }
 
@@ -41,37 +50,41 @@ function required(value: string) {
 		v-model="form"
         @submit.prevent="onSubmit">
 			<v-text-field
-			label="用户名"
-			v-model:model-value="username"
-			:readonly="loading"
-			:rules="[required]"
-			class="mb-2"
-			clearable
-			variant="solo"
-			prepend-inner-icon="mdi-account"
+				label="用户名"
+				type="text"
+				v-model:model-value="username"
+				:readonly="loading"
+				:rules="[required]"
+				class="mb-2"
+				clearable
+				variant="solo"
+				prepend-inner-icon="mdi-account"
+				autocomplete="username"
 			/>
-			<!-- hide password -->
+
 			<v-text-field
-			label="密码"
-			type="password"
-			v-model:model-value="password"
-			:readonly="loading"
-			:rules="[required]"
-			class="mb-2"
-			clearable
-			variant="solo"
-			prepend-inner-icon="mdi-lock"
+				label="密码"
+				type="password"
+				v-model:model-value="password"
+				:readonly="loading"
+				:rules="[required]"
+				class="mb-2"
+				clearable
+				variant="solo"
+				prepend-inner-icon="mdi-lock"
+				autocomplete="current-password"
 			/>
 		
 			<v-btn
-			text="登录"
-			:disabled="!form"
-			:loading="loading"
-			block
-			color="success"
-			size="large"
-			type="submit"
-			variant="elevated"/>
+				text="登录"
+				:disabled="!form"
+				:loading="loading"
+				block
+				color="success"
+				size="large"
+				type="submit"
+				variant="elevated"
+			/>
 		</v-form>
 	</v-card>
 	</v-row>

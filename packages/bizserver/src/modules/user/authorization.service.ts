@@ -39,9 +39,12 @@ export class RolesGuard implements CanActivate {
       // Check whether the user has required privilege
       for (const role of requiredRoles) {
         if (!(payload.userRoles & role)) {
-          return false;
+          throw new UnauthorizedException();
         }
       }
+      // Store the payload (user_info) to the request object so we can use
+      // it inside the controller
+      request['user_info'] = payload;
     } catch {
       throw new UnauthorizedException();
     }

@@ -8,6 +8,8 @@ import type { User } from '@paralab/proto';
 const { cookies } = useCookies();
 
 let access_token: string | undefined = undefined;
+// We store the current user info in the cookie. We set it when login and delete
+// it when logout
 
 // tryLogin: Try to send a login request to the backend, and
 //  - If the login is successful, store the access token in memory, and store
@@ -87,40 +89,61 @@ async function getNewAccessToken() {
 // @throws: It throws error when 1. Failed to get the access token, 2. fetch()
 // panics due to network issue. 3. The server returns a response with status
 // code other than 2xx.
-export async function fetchWithAuthInRaw(url: string, options: RequestInit): Promise<Response> {  
-  // If the access token is not present, we try to get the access token by
-  // providing the server with the refresh token
-  if (!access_token) {
-    await getNewAccessToken();
-  } else {
-    const access_token_decoded: any = jwt.decode(access_token);
-    if (!access_token_decoded || access_token_decoded.exp * 1000 < Date.now() + 2000) { // 2000ms is the tolerance
+export async function fetchWithAuthInRaw(url: string, options: RequestInit): Promise<Response> {
+  if (cookies.isKey('logged_in_user_info')) {
+    // The user is logged in
+    // If the access token is not present, we try to get the access token by
+    // providing the server with the refresh token
+    if (!access_token) {
       await getNewAccessToken();
+    } else {
+      const access_token_decoded: any = jwt.decode(access_token);
+      if (!access_token_decoded || access_token_decoded.exp * 1000 < Date.now() + 2000) { // 2000ms is the tolerance
+        await getNewAccessToken();
+      }
     }
-  }
-  // Now the access token should be ready
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...options.headers,
-      'Authorization': `Bearer ${access_token}`
+    // Now the access token should be ready
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Authorization': `Bearer ${access_token}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error((await response.json()).message);
     }
-  });
-  if (!response.ok) {
-    throw new Error((await response.json()).message);
+    return response;
+  } else {
+    // The user is NOT logged in
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+      }
+    });
+    if (!response.ok) {
+      throw new Error((await response.json()).message);
+    }
+    return response;
   }
-  return response;
 }
 
 // fetchWithAuthInJson: A thin wrapper around fetch_with_auth_in_raw that
 // sends a JSON and returns a JSON.
-export async function fetchWithAuthInJson(url: string, method: string, data: any): Promise<any> {
-  const response = await fetchWithAuthInRaw(url, {
+// Note that since GET requests do not have a body, any data passed to this
+// function when method == "GET" will be ignored.
+export async function fetchWithAuthInJson(url: string, method: string, data: any = {}): Promise<any> {
+  const request_payload: any = {
     method: method,
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data)
-  });
+  };
+  if (method == 'GET') {
+    delete request_payload.body;
+  }
+  const response = await fetchWithAuthInRaw(url, request_payload);
   return await response.json();
 }
