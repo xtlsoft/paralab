@@ -29,7 +29,7 @@ const pdata = problems.find (
                 <div style="text-align: center">
                     通过率
                 </div>
-                <div style="text-align: center">
+                <div style="text-align: center; font-size: x-large;">
                     {{ pdata.acceptance }}%
                 </div>
             </v-card>

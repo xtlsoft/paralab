@@ -16,18 +16,17 @@ function onClickLogout() {
 	:border=10>
 		<template #prepend>
 			<v-btn
-				to="/"
-				prepend-icon="mdi-home">
+			to="/"
+			class="mr-4"
+			prepend-icon="mdi-home">
 				首页
 			</v-btn>
-			
 			<v-btn
-				to="/problemlist"
-				prepend-icon="mdi-bookshelf">
+			to="/problemlist"
+			prepend-icon="mdi-bookshelf">
 				题库
 			</v-btn>
 		</template>
-
 		<template #append>
 			<v-menu v-if="is_logged_in">
 				<template v-slot:activator="{ props }">
@@ -50,12 +49,24 @@ function onClickLogout() {
 					@click="onClickLogout"/>
 				</v-list>
 			</v-menu>
-			<v-btn
-				v-else
+			<div v-else>
+				<v-btn
 				to="/login"
-				prepend-icon="mdi-login">
-				登录
-			</v-btn>
+					class="mr-4"
+					variant="flat"
+					color="success"
+					>
+						登录
+				</v-btn>
+				<v-btn
+				to="/register"
+					class="mr-4"
+					variant="flat"
+					color="blue"
+					>
+						注册
+				</v-btn>
+			</div>
 		</template>
 	</v-app-bar>    
     
