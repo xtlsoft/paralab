@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Param, Body, Res, Req, ParseIntPipe } from '@nestjs/common';
 import { IsEmail, Length, IsNotEmpty, MinLength } from 'class-validator';
 import { Request, Response } from 'express';
+import { ApiProperty } from '@nestjs/swagger';
 
 import { UserService } from './user.service';
 import { Roles } from './authorization.service';
@@ -9,20 +10,25 @@ import env from "src/envs";
 
 class RegisterDTO {
   @Length(3, 20)
+  @ApiProperty()
   userName: string;
 
   @IsEmail()  
+  @ApiProperty()
   email: string;
 
   @MinLength(6)
+  @ApiProperty()
   password: string;
 }
 
 class LoginDTO {
   @Length(3, 20)
+  @ApiProperty()
   userName: string;
   
   @IsNotEmpty()
+  @ApiProperty()
   password: string;
 }
 
@@ -42,8 +48,9 @@ export class UserController {
   async login(
     @Body() user: LoginDTO,
     @Res({ passthrough: true }) response: Response
-  ): Promise<{message: string, access_token: string}> {
-    const refresh_token = (await this.userService.login(user)).refresh_token;
+  ): Promise<{message: string, access_token: string, user_info: User}> {
+    const login_result = await this.userService.login(user);
+    const refresh_token = login_result.refresh_token;
     const access_token = await this.userService.getAccessToken(refresh_token);
     response.cookie('s:refresh_token', refresh_token, {
       httpOnly: true,
@@ -52,9 +59,11 @@ export class UserController {
       sameSite: "strict",
       // secure: true
     });
+    const user_info = await this.userService.getUserInfo(login_result.userId);
     return {
       'message': 'login successfully',
       'access_token': access_token.access_token,
+      'user_info': user_info,
     };
   }
 
@@ -69,5 +78,18 @@ export class UserController {
   @Get(':id')
   async getUserInfo(@Param('id', new ParseIntPipe()) id: number): Promise<User> {
     return await this.userService.getUserInfo(id);
+  }
+
+  // GET /user/logout: Logout
+  @Get('logout')
+  async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }
+  ) response: Response): Promise<{message: string}> {
+    this.userService.invalidateRefreshToken(request.signedCookies['s:refresh_token']);
+    response.clearCookie('s:refresh_token');
+    return {
+      'message': 'logout successfully',
+    };
   }
 }

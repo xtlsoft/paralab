@@ -2,16 +2,20 @@
 //	- Storing the JWT token when logging in (try_login)
 //	- Retrieving the JWT token when fetching from backend (auth_fetch)
 import * as jwt from 'jsonwebtoken';
+import { useCookies } from "vue3-cookies";
+import type { User } from '@paralab/proto';
 
-const backend_addr = "http://localhost:3000"
-let access_token: string | null = null;
+const { cookies } = useCookies();
 
-// try_login: Try to send a login request to the backend, and
+let access_token: string | undefined = undefined;
+
+// tryLogin: Try to send a login request to the backend, and
 //  - If the login is successful, store the access token in memory, and store
-//    the refresh token in cookie (this is done implicitly), and return a
-//    Promise that resolves to {message: 'login successfully'}
+//    the refresh token in cookie (this is done implicitly), and store the info
+//    about the current user into cookie, and return a Promise that resolves
+//    to {message: 'login successfully'}
 //  - If the login is not successful, return a Promise that rejects to {message: FAILED_REASON}
-export async function try_login(userName: string, password: string): Promise<{message: string}> {
+export async function tryLogin(userName: string, password: string): Promise<{message: string}> {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await fetch(`/api/user/login`, {
@@ -24,8 +28,11 @@ export async function try_login(userName: string, password: string): Promise<{me
       if (!response.ok) {
         reject((await response.json()).message);
       }
-      const json = await response.json();
+      const json: {message: string, access_token: string, user_info: User} = await response.json();
       access_token = json.access_token;
+      const logged_in_user_info = json.user_info;
+      cookies.set('logged_in_user_info', logged_in_user_info as any)
+      console.log(`Logged in as ${logged_in_user_info.name}`)
       resolve({message: 'login successfully'});
     } catch (e: any) {
       // According to https://developer.mozilla.org/en-US/docs/Web/API/fetch,
@@ -37,11 +44,30 @@ export async function try_login(userName: string, password: string): Promise<{me
   });
 }
 
+// logout: Send a logout request to the backend (which invalidates the refresh
+// token), clear the access token in memory
+// @throw: It throws an error if the user failed to logout
+export async function logout(): Promise<{message: string}> {
+  fetchWithAuthInJson(`/api/user/logout`, 'GET', {});
+  access_token = undefined;
+  cookies.remove('logged_in_user_info');
+  return {message: 'logout successfully'};
+}
+
+// getLoggedInUserInfo: Return the info about the current logged in user
+export function getLoggedInUserInfo(): User | undefined {
+  const logged_in_user_info: User = cookies.get('logged_in_user_info') as any;
+  if (!logged_in_user_info) {
+    return undefined;
+  }
+  return logged_in_user_info;
+}
+
 // Obtain a new access token by providing the server with the refresh token
 // It sets the access token if everything is OK, and throws an error if any
 // error occurs (including 1. Network error that causes fetch() to panic and
 // 2. The server returns an error since the refresh token is invalid)
-async function get_new_access_token() {
+async function getNewAccessToken() {
   const response = await fetch(`/api/user/access_token`, {
     method: 'GET'
   });
@@ -52,7 +78,7 @@ async function get_new_access_token() {
   access_token = json.access_token;
 }
 
-// fetch_with_auth_in_raw: This function sends a request to the backend with a
+// fetchWithAuthInRaw: This function sends a request to the backend with a
 // valid access token. If the access token is not present or is going to expire
 // soon, we try to get the access token by providing the server with the refresh token.
 // @param url: The url to fetch
@@ -61,15 +87,15 @@ async function get_new_access_token() {
 // @throws: It throws error when 1. Failed to get the access token, 2. fetch()
 // panics due to network issue. 3. The server returns a response with status
 // code other than 2xx.
-export async function fetch_with_auth_in_raw(url: string, options: RequestInit): Promise<Response> {  
+export async function fetchWithAuthInRaw(url: string, options: RequestInit): Promise<Response> {  
   // If the access token is not present, we try to get the access token by
   // providing the server with the refresh token
   if (!access_token) {
-    await get_new_access_token();
+    await getNewAccessToken();
   } else {
     const access_token_decoded: any = jwt.decode(access_token);
     if (!access_token_decoded || access_token_decoded.exp * 1000 < Date.now() + 2000) { // 2000ms is the tolerance
-      await get_new_access_token();
+      await getNewAccessToken();
     }
   }
   // Now the access token should be ready
@@ -86,10 +112,10 @@ export async function fetch_with_auth_in_raw(url: string, options: RequestInit):
   return response;
 }
 
-// fetch_with_auth_in_json: A thin wrapper around fetch_with_auth_in_raw that
+// fetchWithAuthInJson: A thin wrapper around fetch_with_auth_in_raw that
 // sends a JSON and returns a JSON.
-export async function fetch_with_auth_in_json(url: string, method: string, data: any): Promise<any> {
-  const response = await fetch_with_auth_in_raw(url, {
+export async function fetchWithAuthInJson(url: string, method: string, data: any): Promise<any> {
+  const response = await fetchWithAuthInRaw(url, {
     method: method,
     headers: {
       'Content-Type': 'application/json',

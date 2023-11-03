@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import ProblemSearch from './ProblemSearch.vue';
-import { try_login, fetch_with_auth_in_json } from "../api/authorization";
+import { tryLogin, fetchWithAuthInJson } from "../api/authorization";
 
 const test1 = async () => {
-  const res = await try_login("intlsy2",
+  const res = await tryLogin("intlsy2",
     "12312314151524123123");
   console.log(res);
 }
 
 const test2 = async () => {
-  const res = await fetch_with_auth_in_json("/api/user/register", "POST", {
+  const res = await fetchWithAuthInJson("/api/user/register", "POST", {
     "userName": "!23123"
   });
   console.log(res)

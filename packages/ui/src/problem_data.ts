@@ -1,7 +1,5 @@
 import verb from "./verb"
 
-import problem from "../../bizserver/src/proto/problem"
-
 let lowverb = verb.toLowerCase()
 
 let problem_data_fake = [

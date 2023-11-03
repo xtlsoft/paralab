@@ -8,6 +8,7 @@ import env from './envs';
 
 import { AppModule } from './modules/app.module';
 import { redisClient } from './redis';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { UserEntity } from 'src/entity/user';
 import { ProblemEntity } from './entity/problem';
@@ -31,6 +32,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser(env.COOKIE_SECRET));
+    
+  const swagger_config = new DocumentBuilder()
+    .setTitle('Paralab API document')
+    .setDescription('The Paralab API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, swagger_config);
+  SwaggerModule.setup('api', app, document);
   await app.listen(env.LISTEN_PORT, env.LISTEN_HOST);
 }
 bootstrap();

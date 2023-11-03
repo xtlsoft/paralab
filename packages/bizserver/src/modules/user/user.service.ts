@@ -23,6 +23,7 @@ interface RefreshTokenInfo {
   // or the device name of the client, etc.
 }
 
+// AccessToken is the info we store in the access token JWT
 export interface AccessToken {
   userId: number,
   userName: string,
@@ -63,7 +64,7 @@ export class UserService {
     };
   }
 
-  async login(user: { userName: string; password: string }): Promise<{refresh_token: string}> {
+  async login(user: { userName: string; password: string }): Promise<{userId: number, refresh_token: string}> {
     // First we verify the user name and password
     const user_in_db = await UserEntity.findOneBy({ name: user.userName });
     if (!user_in_db) {
@@ -86,6 +87,7 @@ export class UserService {
     // TODO find a way to delete expired refresh tokens
     redisClient.hSet('refresh_tokens', refresh_token, JSON.stringify(refresh_token_info));
     return {
+      'userId': user_in_db.id,
       'refresh_token': refresh_token
     };
   }
@@ -117,6 +119,19 @@ export class UserService {
     };
   }
 
+  async invalidateRefreshToken(refresh_token: string) {
+    // First we validate the refresh token
+    if (!refresh_token) {
+      throw new BadRequestException('refresh token not found');
+    }
+    const refresh_token_info_str: string = await redisClient.hGet('refresh_tokens', refresh_token);
+    if (!refresh_token_info_str) {
+      throw new BadRequestException('refresh token invalid');
+    }
+    const refresh_token_info: RefreshTokenInfo = JSON.parse(refresh_token_info_str);
+    // Then we delete the refresh token from redis
+    redisClient.hDel('refresh_tokens', refresh_token);
+  }
 }
 
 

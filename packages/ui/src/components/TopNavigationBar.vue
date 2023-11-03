@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import user from '../user_data'
+import { ref } from "vue"
+import * as authorization from "@/api/authorization"
+
+const user = authorization.getLoggedInUserInfo()
+const is_logged_in = ref(user !== undefined);
+
+function onClickLogout() {
+	authorization.logout()
+	window.location.reload()
+}
 </script>
 
 <template>
@@ -20,13 +29,13 @@ import user from '../user_data'
 		</template>
 
 		<template #append>
-			<v-menu>
+			<v-menu v-if="is_logged_in">
 				<template v-slot:activator="{ props }">
 					<v-btn
 					v-bind="props"
 								append-icon="mdi-menu-down"
 					>
-					{{ user.name }}
+					{{ user?.name ?? "未登录" }}
 					</v-btn>
 				</template>
 
@@ -34,12 +43,19 @@ import user from '../user_data'
 					<v-list-item
 					prepend-icon="mdi-account"
 					title="Profile"
-					:to="`/user/${ user.uid }`"/>
+					:to="`/user/${ user?.id }`"/>
 					<v-list-item
 					prepend-icon="mdi-logout"
-					title="Logout"/>
+					title="Logout"
+					@click="onClickLogout"/>
 				</v-list>
 			</v-menu>
+			<v-btn
+				v-else
+				to="/login"
+				prepend-icon="mdi-login">
+				登录
+			</v-btn>
 		</template>
 	</v-app-bar>    
     
