@@ -16,6 +16,8 @@ const rules = [
                     label="题目名称/题号/..."
                     :rules="rules"
                     hide-details="auto"
+                    variant="solo"
+                    rounded
                 />
             </v-col>
         </v-row>

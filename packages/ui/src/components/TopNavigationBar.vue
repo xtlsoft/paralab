@@ -7,19 +7,34 @@ import user from '../user_data'
 	:border=10>
 		<template #prepend>
 			<v-btn
-				to="/"
-				prepend-icon="mdi-home">
+			to="/"
+			class="mr-4"
+			prepend-icon="mdi-home">
 				首页
 			</v-btn>
-			
 			<v-btn
-				to="/problemlist"
-				prepend-icon="mdi-bookshelf">
+			to="/problemlist"
+			prepend-icon="mdi-bookshelf">
 				题库
 			</v-btn>
 		</template>
-
 		<template #append>
+			<v-btn
+			to="/login"
+			class="mr-4"
+			variant="flat"
+			color="success"
+			>
+				登录
+			</v-btn>
+			<v-btn
+			to="/register"
+			class="mr-4"
+			variant="flat"
+			color="blue"
+			>
+				注册
+			</v-btn>
 			<v-menu>
 				<template v-slot:activator="{ props }">
 					<v-btn
