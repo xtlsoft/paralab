@@ -8,7 +8,6 @@ import { UserService, AccessToken } from './user.service';
 import { Roles } from './authorization.service';
 import { User, ROLE_USER, RoleMask, ROLE_SYS_ADMIN } from '@paralab/proto';
 import env from "src/envs";
-import { access } from 'fs';
 
 class RegisterDTO {
   @Length(3, 20)

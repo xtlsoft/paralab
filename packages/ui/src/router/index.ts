@@ -17,6 +17,10 @@ const router = createRouter({
       component: () => import('../views/ProblemDetailView.vue')
     },
     {
+      path: '/problem/:problemid(\\d+)/edit',
+      component: () => import('../views/ProblemEditView.vue')
+    },
+    {
       path: '/submit/:problemid(\\d+)',
       component: () => import('../views/SubmitCodeView.vue')
     },

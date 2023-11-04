@@ -6,6 +6,8 @@ import { ApiOperation, ApiProperty } from '@nestjs/swagger';
 import { ProblemService } from './problem.service';
 import { Problem } from '@paralab/proto';
 import { JudgeConfig, default_judge_config } from '@paralab/proto';
+import { Roles } from './../user/authorization.service';
+import { ROLE_USER, ROLE_PROBLEMSET_ADMIN } from '@paralab/proto';
 import env from "src/envs";
 
 class ProblemMetadataDTO {
@@ -30,7 +32,7 @@ class ModifyProblemDTO {
   metadata: ProblemMetadataDTO
 }
 
-@Controller('/api/user')
+@Controller('/api/problem')
 export class ProblemController {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -38,8 +40,9 @@ export class ProblemController {
   // It accepts no arguments, creates a new problem with default values (empty
   // description, etc.), and returns the new problem object.
   // Only users marked with is_admin can call this API.
-  @Post('/problem')
+  @Post('/')
   @ApiOperation({ summary: 'Create a new problem' })
+  @Roles([ROLE_PROBLEMSET_ADMIN])
   async createProblem(): Promise<Problem> {
     return await this.problemService.createProblem();
   }
@@ -47,7 +50,8 @@ export class ProblemController {
   // PUT /problem: Modify a problem
   // It accepts a problem object, and returns the modified problem object.
   // Only users marked with is_admin can call this API.
-  @Put('/problem/:id')
+  @Put('/:id')
+  @Roles([ROLE_PROBLEMSET_ADMIN])
   async modifyProblem(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() problem: ModifyProblemDTO
@@ -62,9 +66,11 @@ export class ProblemController {
   // DELETE /problem/:id: Delete a problem
   // It accepts a problem id, and returns nothing.
   // Only users marked with is_admin can call this API.
-  @Delete('/problem/:id')
-  async deleteProblem(@Param('id', new ParseIntPipe()) id: number): Promise<void> {
+  @Delete('/:id')
+  @Roles([ROLE_PROBLEMSET_ADMIN])
+  async deleteProblem(@Param('id', new ParseIntPipe()) id: number): Promise<{}> {
     await this.problemService.deleteProblem(id);
+    return {};
   }
 
   // GET /problem/:id: Get problem by id
