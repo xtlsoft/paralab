@@ -11,7 +11,8 @@ import { redisClient } from './redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { UserEntity } from 'src/entity/user';
-import { ProblemEntity } from './entity/problem';
+import { ProblemEntity } from 'src/entity/problem';
+import { ContestEntity } from 'src/entity/contest';
 
 async function bootstrap() {
   const AppDataSource: DataSource = new DataSource({
@@ -22,7 +23,7 @@ async function bootstrap() {
     password: env.POSTGRES_PASSWORD,
     database: env.POSTGRES_DB,
     synchronize: env.POSTGRES_SYNCHRONIZE,
-    entities: [UserEntity, ProblemEntity]
+    entities: [UserEntity, ProblemEntity, ContestEntity]
   })
   await AppDataSource.initialize()
   console.log("Data Source has been initialized!")

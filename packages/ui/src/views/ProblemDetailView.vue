@@ -59,7 +59,7 @@ function onClickDeleteProblem() {
 		<v-col>
 			<v-list>
 				<v-list-item 
-				:to="`/submit/${ problemId }`"
+				:to="`/problem/${ problemId }/submit`"
 				prepend-icon="mdi-send-variant" 
 				title="提交"/>
 				<v-list-item 

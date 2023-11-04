@@ -11,11 +11,13 @@ export type RoleMask = number;
 export const ROLE_USER: RoleMask = 1 << 0;  // Whether the user is a normal user (i.e. not banned)
 export const ROLE_SYS_ADMIN: RoleMask = 1 << 1; // Whether the user is a system admin
 export const ROLE_PROBLEMSET_ADMIN: RoleMask = 1 << 2; // Whether the user is a problemset admin 
+export const ROLE_CONTEST_ADMIN: RoleMask = 1 << 3; // Whether the user is a contest admin
 
 export const ROLE_MASKS = [
 	{mask: ROLE_USER, name: '普通用户'},
 	{mask: ROLE_SYS_ADMIN, name: '系统管理员'},
 	{mask: ROLE_PROBLEMSET_ADMIN, name: '题库管理员'},
+	{mask: ROLE_CONTEST_ADMIN, name: '比赛管理员'},
 ];
 
 // Functions for manuplating roles - they are just simple bit operations

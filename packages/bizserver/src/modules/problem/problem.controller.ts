@@ -64,7 +64,7 @@ export class ProblemController {
   // POST /problem: Create a new problem
   // It accepts no arguments, creates a new problem with default values (empty
   // description, etc.), and returns the new problem object.
-  // Only users marked with is_admin can call this API.
+  // Only users marked with ROLE_PROBLEMSET_ADMIN can call this API.
   @Post('/')
   @ApiOperation({ summary: 'Create a new problem' })
   @Roles([ROLE_PROBLEMSET_ADMIN])
@@ -111,5 +111,22 @@ export class ProblemController {
       throw new UnauthorizedException('the problem is not public');
     }
     return problem;
+  }
+
+  // POST /problem/:id/submit: Submit a solution to a problem
+  @Get('/:id/submit')
+  @Roles([ROLE_USER])
+  async submitSolution(
+    @Req() request: Request,
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() solution: {language: string, code: string}
+  ): Promise<{}> {
+    const user_roles = request['user_info'] ? (request['user_info'] as AccessToken).userRoles : 0;
+    const problem = await this.problemService.getProblemById(id);
+    if (!problem.allowSubmitFromProblemList && !(user_roles & ROLE_PROBLEMSET_ADMIN)) {
+      throw new UnauthorizedException('the problem does not allow submit from problem list');
+    }
+    // await this.problemService.submitSolution(user_info.userId, id, solution.language, solution.code);
+    return {};
   }
 }

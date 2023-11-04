@@ -21,8 +21,20 @@ const router = createRouter({
       component: () => import('../views/ProblemEditView.vue')
     },
     {
-      path: '/submit/:problemid(\\d+)',
+      path: '/problem/:problemid(\\d+)/submit',
       component: () => import('../views/SubmitCodeView.vue')
+    },
+    {
+      path: '/contestlist',
+      component: () => import('../views/ContestListView.vue')
+    },
+    {
+      path: '/contest/:contestid(\\d+)',
+      component: () => import('../views/ContestDetailView.vue')
+    },
+    {
+      path: '/contest/:contestid(\\d+)/edit',
+      component: () => import('../views/ContestEditView.vue')
     },
     {
       path: '/user/:userId(\\d+)',

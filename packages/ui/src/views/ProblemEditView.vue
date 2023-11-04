@@ -131,6 +131,7 @@ function onClickSaveProblem() {
 				</v-col>
 			</v-row>
 		</v-col>
+		<v-divider vertical class="ml-4 mr-4"></v-divider>
 		<v-col>
 			<v-list>
 				<v-list-item

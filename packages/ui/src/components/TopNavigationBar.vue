@@ -33,8 +33,15 @@ function onClickLogout() {
 			</v-btn>
 			<v-btn
 			to="/problemlist"
+			class="mr-4"
 			prepend-icon="mdi-bookshelf">
 				题库
+			</v-btn>
+			<v-btn
+			to="/contestlist"
+			class="mr-4"
+			prepend-icon="mdi-sword-cross">
+				比赛
 			</v-btn>
 		</template>
 		<template #append>

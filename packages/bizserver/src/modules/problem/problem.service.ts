@@ -3,7 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 
 import env from "src/envs";
 
-import { Problem, RoleMask, ProblemListItem, ROLE_PROBLEMSET_ADMIN } from '@paralab/proto'
+import { Problem, RoleMask, ProblemListItem, ROLE_PROBLEMSET_ADMIN, ContestListItem } from '@paralab/proto'
 import { ProblemEntity } from 'src/entity/problem';
 import { JudgeConfig, default_judge_config } from '@paralab/proto';
 
@@ -25,7 +25,10 @@ export class ProblemService {
       select: ['id', 'name', 'isPublic', 'allowSubmitFromProblemList'],
       where: filter,
       skip: startIndex,
-      take: count
+      take: count,
+      order: {
+        id: 'ASC'
+      }
     });
     const total_visible_problem_count = await ProblemEntity.countBy(filter);
     return {
