@@ -131,8 +131,8 @@ export async function fetchWithAuthInRaw(url: string, options: RequestInit): Pro
 
 // fetchWithAuthInJson: A thin wrapper around fetch_with_auth_in_raw that
 // sends a JSON and returns a JSON.
-// Note that since GET requests do not have a body, any data passed to this
-// function when method == "GET" will be ignored.
+// Note that since GET requests do not have a body, `data` will be put to
+// request params in URL
 export async function fetchWithAuthInJson(url: string, method: string, data: any = {}): Promise<any> {
   const request_payload: any = {
     method: method,
@@ -143,6 +143,7 @@ export async function fetchWithAuthInJson(url: string, method: string, data: any
   };
   if (method == 'GET') {
     delete request_payload.body;
+    url += '?' + new URLSearchParams(data).toString();
   }
   const response = await fetchWithAuthInRaw(url, request_payload);
   return await response.json();

@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-
-type Problem = {
-  name: string;
-  id: number;
-  acceptance: number;
-};
+import { ProblemListItem } from '@paralab/proto';
 
 defineProps({
-  problems: Array<Problem>
+  problems: Array<ProblemListItem>
 })
 </script>
 
@@ -37,6 +32,23 @@ defineProps({
           <RouterLink :to="`/problem/${item.id}`">
           {{ item.name }}
           </RouterLink>
+          <v-chip
+          v-if="!item.isPublic"
+          color="primary"
+          size="small"
+          class="ml-4"
+          >
+            非公开
+          </v-chip>
+          <v-chip
+          v-if="!item.allowSubmitFromProblemList"
+          color="red"
+          text-color="white"
+          size="small"
+          class="ml-4"
+          >
+            不可从题目列表提交
+          </v-chip>
         </td>
         <td class="text-center">{{ item.acceptance }}%</td>
       </tr>
