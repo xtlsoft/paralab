@@ -9,6 +9,9 @@ import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
 import type { User, Contest, ContestWithProblemName } from '@paralab/proto';
 import { ROLE_CONTEST_ADMIN } from '@paralab/proto';
 
+import CountDownTimer from '@/components/CountDownTimer.vue'
+import ContestProblemList from '@/components/ContestProblemList.vue';
+
 const route = useRoute()
 const contestId = parseInt(route.params.contestid as string);
 
@@ -27,7 +30,7 @@ let contest: Ref<ContestWithProblemName> = ref({
 })
 
 onMounted(() => {
-	fetchWithAuthInJson(`/api/contest/${contestId}`, "GET", {}).then((res: Contest) => {
+	fetchWithAuthInJson(`/api/contest/${contestId}`, "GET", {}).then((res: ContestWithProblemName) => {
 		contest.value = res;
 	}).catch((e) => {
 		console.log(e)
@@ -51,10 +54,19 @@ function onClickDeleteContest() {
 <template>
 	<v-row
 	class="mt-6 mb-4">
-		<h1>
-			#{{ contest.id }}
-			{{ contest.name }}
-		</h1>
+		<v-col
+		align-self="center">
+			<h1>
+				#{{ contest.id }}
+				{{ contest.name }}
+			</h1>
+		</v-col>
+		<v-col
+		cols="6">
+			<CountDownTimer 
+				:start-time="contest.startTime"
+				:end-time="contest.endTime"/>
+		</v-col>
 	</v-row>
 	<v-row>
 		<v-divider></v-divider>
@@ -62,9 +74,20 @@ function onClickDeleteContest() {
 	<v-row> 
 		<v-col
 		cols = "9">
-			<VueMarkdown
+			<v-row
+			class="pa-3">
+				<VueMarkdown
 				:source="contest.metadata.description"/>
+			</v-row>
+			<v-row>
+				<v-divider></v-divider>
+			</v-row>
+			<v-row>
+				<ContestProblemList
+				:problems="contest.metadata.problems"/>
+			</v-row>
 		</v-col>
+		<v-divider vertical class="ml-4 mr-4"></v-divider>
 		<v-col>
 			<v-list>
 				<v-list-item 

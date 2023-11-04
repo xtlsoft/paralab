@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import { ContestListItem } from '@paralab/proto';
+import type { ContestListItem } from '@paralab/proto';
 
 defineProps({
   contests: Array<ContestListItem>

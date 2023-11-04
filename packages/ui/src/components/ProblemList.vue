@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import { ProblemListItem } from '@paralab/proto';
+import type { ProblemListItem } from '@paralab/proto';
 
 defineProps({
   problems: Array<ProblemListItem>
@@ -50,7 +50,7 @@ defineProps({
             不可从题目列表提交
           </v-chip>
         </td>
-        <td class="text-center">{{ item.acceptance }}%</td>
+        <td class="text-center">{{ 0 }}%</td>
       </tr>
     </tbody>
   </v-table>
