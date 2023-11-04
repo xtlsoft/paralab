@@ -66,7 +66,7 @@ function onSubmitChangePermissionForm() {
 	fetchWithAuthInJson(`/api/user/${userId}/role_mask`, "PUT", {
 		new_roles: new_roles,
 	}).then((res) => {
-		alert("修改成功")
+		alert("修改成功\n警告：只有当用户重新登录后，权限修改才会生效")
 		// We force the user to refresh the window to invalidate the access token
 		// since the access token contains the role mask which will read by
 		// the backend to determine the user's permission.

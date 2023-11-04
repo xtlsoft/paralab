@@ -15,6 +15,16 @@ function onClickLogout() {
 	<v-app-bar
 	:border=10>
 		<template #prepend>
+			<v-btn 
+			to="/"
+			class="mr-4 ml-4"
+			rounded="0"
+			variant="flat"
+			:active="false"
+			style="display: flex; align-items: center; height: 100%">
+				<img src="/src/assets/hpcgame-logo.svg" style="height: 40px; margin-right: 14px;"/>
+				<span style="font-size: 20px;">ParaLab</span>
+			</v-btn>
 			<v-btn
 			to="/"
 			class="mr-4"
