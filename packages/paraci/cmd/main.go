@@ -25,8 +25,16 @@ func main() {
 		{
 			Name:  "agent",
 			Usage: "Run paraci agent",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:    "ID",
+					Aliases: []string{"i"},
+					Usage:   "Agent ID",
+					Value:   "DETECTHOSTNAME",
+				},
+			},
 			Action: func(ctx *cli.Context) error {
-				agent := agent.NewAgent()
+				agent := agent.NewAgent(ctx.String("ID"))
 				agent.Listen()
 				return nil
 			},
