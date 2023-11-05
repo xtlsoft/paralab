@@ -105,9 +105,15 @@ export class ContestController {
         ...contest.metadata,
         problems: await Promise.all(
           contest.metadata.problems.map(async (problem) => {
+            let name: string = ""
+            try {
+              name = (await this.problemService.getProblemById(problem.id)).name
+            } catch (e) {
+              name = "(Not Found)"
+            }
             return {
               ...problem,
-              name: (await this.problemService.getProblemById(problem.id)).name
+              name: name
             }
           })
         )
