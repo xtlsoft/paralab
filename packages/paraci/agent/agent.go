@@ -11,6 +11,8 @@ import (
 	"github.com/containers/image/v5/types"
 	"github.com/dotenv-org/godotenvvault"
 	"github.com/emicklei/go-restful/v3"
+	"github.com/lcpu-club/paralab/packages/paraci/agent/cache"
+	"github.com/lcpu-club/paralab/packages/paraci/agent/image"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -18,11 +20,11 @@ type Agent struct {
 	ID            string
 	Host          string
 	Port          int
-	ImageRegistry ImageRegistry
-	agentRunc     runc.Runc
+	ImageRegistry *image.ImageRegistry
+	agentRunc     *runc.Runc
 	SecretKey     string
 	ContainerDir  string
-	Cache         *Cache
+	BlobCache     *cache.Cache
 	RedisDB       *redis.Client
 }
 
@@ -62,7 +64,7 @@ func NewAgent(ID string) Agent {
 	imageRegistryAddr := getenv("AGENT_IMAGE_REGISTRY", "localhost:5000")
 	ImageRegistryUsername := getenv("AGENT_IMAGE_REGISTRY_USERNAME", "")
 	ImageRegistryPassword := getenv("AGENT_IMAGE_REGISTRY_PASSWORD", "")
-	imageRegistry := ImageRegistry{
+	imageRegistry := image.ImageRegistry{
 		Url: imageRegistryAddr,
 		Auth: &types.DockerAuthConfig{
 			Username: ImageRegistryUsername,
@@ -98,6 +100,7 @@ func NewAgent(ID string) Agent {
 	log.Println("Redis cache connected")
 	// end init redis cache
 	cacheDir := getenv("AGENT_CACHE_DIR", "/var/lib/paraci/cache")
+	cacheEnable := getenv("AGENT_CACHE_ENABLE", "true")
 	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
 		log.Println("Cache directory does not exist, creating...")
 		err := os.MkdirAll(cacheDir, 0700)
@@ -106,7 +109,11 @@ func NewAgent(ID string) Agent {
 		}
 	}
 	log.Printf("Cache directory: %s\n", cacheDir)
-	cache, err := InitCache(cacheDir, redis_client)
+	blobCache := cache.Cache{
+		Directory:   cacheDir,
+		CacheEnable: func() bool { b, _ := strconv.ParseBool(cacheEnable); return b }(),
+	}
+	err = blobCache.InitCache()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -138,16 +145,15 @@ func NewAgent(ID string) Agent {
 		LogFormat: runc.Format(runc_log_format),
 		Rootless:  func() *bool { b := true; return &b }(), // hardcode to true
 	}
-
 	agent := Agent{
 		ID:            ID,
 		Host:          host,
 		Port:          port,
-		ImageRegistry: imageRegistry,
-		agentRunc:     agent_runc,
+		ImageRegistry: &imageRegistry,
+		agentRunc:     &agent_runc,
 		SecretKey:     secretKey,
 		ContainerDir:  containerDir,
-		Cache:         cache,
+		BlobCache:     &blobCache,
 	}
 
 	return agent
@@ -155,7 +161,6 @@ func NewAgent(ID string) Agent {
 
 // let agent listen to port
 func (agent *Agent) Listen() {
-	log.Printf("Listening on %s:%d\n", agent.Host, agent.Port)
 	ws := new(restful.WebService)
 	ws.Path("/api/v1").Consumes(restful.MIME_JSON, restful.MIME_XML).Produces(restful.MIME_JSON, restful.MIME_XML)
 	ws.Route(ws.POST("/spawn").To(agent.SpawnContainerHandler))
@@ -163,5 +168,6 @@ func (agent *Agent) Listen() {
 	ws.Route(ws.GET("/list").To(agent.ListContainersHandler))
 	ws.Route(ws.GET("/").To(agent.IndexHandler))
 	restful.Add(ws)
+	log.Printf("Listening on %s:%d\n", agent.Host, agent.Port)
 	log.Fatal(http.ListenAndServe(agent.Host+":"+strconv.Itoa(agent.Port), nil))
 }

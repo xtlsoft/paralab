@@ -10,6 +10,13 @@ Paraci uses [Just](https://just.systems/) to work as a task runner. You can inst
 
 ## Build Paraci
 
+Go version must >= 1.19
+
+Install dependencies
+``` bash
+sudo apt install libgpgme-dev libbtrfs-dev libdevmapper-dev
+```
+
 Build common binaries
 ``` bash
 just build

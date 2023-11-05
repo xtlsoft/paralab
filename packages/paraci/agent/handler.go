@@ -11,7 +11,7 @@ import (
 )
 
 func (agent *Agent) SpawnContainerHandler(req *restful.Request, resp *restful.Response) {
-
+	log.Println("SpawnContainerHandler")
 	agentRequest := models.AgentRequest{}
 	err := json.NewDecoder(req.Request.Body).Decode(&agentRequest)
 	if err != nil {
@@ -19,7 +19,7 @@ func (agent *Agent) SpawnContainerHandler(req *restful.Request, resp *restful.Re
 		return
 	}
 	containerUUID := uuid.New().String()
-	runc.CreateContainer(&agent.agentRunc, &agentRequest.Container, containerUUID)
+	runc.CreateContainer(agent.agentRunc, agent.BlobCache, agent.ImageRegistry, &agentRequest.Container, containerUUID)
 }
 
 func (agent *Agent) KillContainerHandler(req *restful.Request, resp *restful.Response) {
