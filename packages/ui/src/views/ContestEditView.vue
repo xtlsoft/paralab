@@ -8,7 +8,6 @@ import { onMounted } from 'vue';
 import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
 import type { User, Contest } from '@paralab/proto';
 import { ROLE_CONTEST_ADMIN } from '@paralab/proto';
-import { on } from 'events';
 
 const route = useRoute()
 const contestId = parseInt(route.params.contestid as string);
