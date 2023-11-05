@@ -45,6 +45,30 @@ onMounted(() => {
 	})
 })
 
+function onClickMoveUp(index: number) {
+	if (index === 0) {
+		return;
+	}
+	contest.value.metadata.problems = Array.prototype.concat(
+		contest.value.metadata.problems.slice(0, index - 1),
+		contest.value.metadata.problems[index],
+		contest.value.metadata.problems[index - 1],
+		contest.value.metadata.problems.slice(index + 1)
+	);
+}
+
+function onClickMoveDown(index: number) {
+	if (index === contest.value.metadata.problems.length - 1) {
+		return;
+	}
+	contest.value.metadata.problems = Array.prototype.concat(
+		contest.value.metadata.problems.slice(0, index),
+		contest.value.metadata.problems[index + 1],
+		contest.value.metadata.problems[index],
+		contest.value.metadata.problems.slice(index + 2)
+	);
+}
+
 function onClickAddProblem() {
 	contest.value.metadata.problems.push({
 		id: 1,
@@ -169,7 +193,7 @@ function onClickSaveContest() {
 				<v-col cols="1">
 				</v-col>
 				<v-col cols="3">
-					<v-btn-toggle
+					<v-btn-group
 					:border="true"
 					variant="outlined"
 					divided>
@@ -186,7 +210,7 @@ function onClickSaveContest() {
 						variant="elevated"
 						icon="mdi-arrow-up"
 						:disabled="contest.metadata.problems.indexOf(problem) == 0"
-						@click="contest.metadata.problems = (contest.metadata.problems as any).slice(0, contest.metadata.problems.indexOf(problem) - 1).concat(problem, (contest.metadata.problems as any).slice(contest.metadata.problems.indexOf(problem) - 1, contest.metadata.problems.indexOf(problem)))"
+						@click="onClickMoveUp(contest.metadata.problems.indexOf(problem))"
 						></v-btn>
 						<v-btn
 						size="small"
@@ -194,9 +218,9 @@ function onClickSaveContest() {
 						variant="elevated"
 						icon="mdi-arrow-down"
 						:disabled="contest.metadata.problems.indexOf(problem) == contest.metadata.problems.length - 1"
-						@click="contest.metadata.problems = (contest.metadata.problems as any).slice(0, contest.metadata.problems.indexOf(problem)).concat(contest.metadata.problems[contest.metadata.problems.indexOf(problem) + 1], problem, (contest.metadata.problems as any).slice(contest.metadata.problems.indexOf(problem) + 2))"
+						@click="onClickMoveDown(contest.metadata.problems.indexOf(problem))"
 						></v-btn>
-				</v-btn-toggle>
+				</v-btn-group>
 				</v-col>
 			</v-row>
 			<v-row>
