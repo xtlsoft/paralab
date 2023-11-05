@@ -8,11 +8,11 @@ export class ContestEntity extends BaseEntity {
 	@Column()
 	name: string
 
-	@Column()
-	startTime: Date
+	@Column('bigint')
+	startTime: number	// In UNIX timestamp, milliseconds
 	
-	@Column()
-	endTime: Date
+	@Column('bigint')
+	endTime: number	// In UNIX timestamp, milliseconds
 
 	@Column()
 	isPublic: boolean

@@ -49,7 +49,7 @@ function onClickDeleteProblem() {
 	}
 }
 
-function onClickSaveProblem() {
+function onClickSaveProblem(return_after_save: boolean) {
 	fetchWithAuthInJson(`/api/problem/${problemId}`, "PUT", {
 		problemName: entered_problem_name.value,
 		isPublic: entered_isPublic.value,
@@ -60,6 +60,9 @@ function onClickSaveProblem() {
 		}
 	}).then((res) => {
 		alert("保存成功")
+		if (return_after_save) {
+			window.location.href = `/problem/${problemId}`
+		}
 	}).catch((e) => {
 		console.log(e)
 		alert(`保存失败: ${e}`)
@@ -138,12 +141,18 @@ function onClickSaveProblem() {
 				link 
 				prepend-icon="mdi-floppy"
 				title="保存"
-				@click="onClickSaveProblem"
+				@click="onClickSaveProblem(false)"
+				></v-list-item>
+				<v-list-item
+				link 
+				prepend-icon="mdi-floppy"
+				title="保存并返回"
+				@click="onClickSaveProblem(true)"
 				></v-list-item>
 				<v-list-item
 				link 
 				prepend-icon="mdi-delete"
-				title="删除"
+				title="删除题目"
 				@click="onClickDeleteProblem"
 				></v-list-item>
 			</v-list>

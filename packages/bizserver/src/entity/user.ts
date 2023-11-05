@@ -9,8 +9,8 @@ export class UserEntity extends BaseEntity {
 	@Column()
 	name: string
 
-	@Column()
-	registerTime: Date
+	@Column('bigint')
+	registerTime: number	// In UNIX timestamp, milliseconds
 
 	@Column()
 	password: string

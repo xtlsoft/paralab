@@ -50,7 +50,7 @@ export class UserService {
     const password_hash: string = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
     const user = new UserEntity();
     user.name = input.userName;
-    user.registerTime = new Date();
+    user.registerTime = Date.now();
     user.password = password_hash;
     user.roleMask = ROLE_USER;
     user.metadata = {

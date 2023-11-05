@@ -30,7 +30,7 @@ export function hasRole(roleSet: RoleMask, role: RoleMask): boolean {
 export interface User {
 	id: number
 	name: string
-	registerTime: Date
+	registerTime: number	// In UNIX timestamp, milliseconds
 	password: string
 	roleMask: RoleMask
 	metadata: {

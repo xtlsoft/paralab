@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import * as cookieParser from 'cookie-parser';
+import { types as pg_types } from 'pg';
 
 import env from './envs';
 
@@ -25,6 +26,13 @@ async function bootstrap() {
     synchronize: env.POSTGRES_SYNCHRONIZE,
     entities: [UserEntity, ProblemEntity, ContestEntity]
   })
+  // PostgreSQL bigint is 64-bit signed integer, which is not enough for JavaScript's Number
+  // so it returns a string instead. We need to convert it to number.
+  // https://github.com/typeorm/typeorm/issues/8583
+  pg_types.setTypeParser(pg_types.builtins.INT8, function(val) {
+    return Number(val)
+  });
+
   await AppDataSource.initialize()
   console.log("Data Source has been initialized!")
   await redisClient.connect();
@@ -33,7 +41,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser(env.COOKIE_SECRET));
-    
+  
   const swagger_config = new DocumentBuilder()
     .setTitle('Paralab API document')
     .setDescription('The Paralab API description')

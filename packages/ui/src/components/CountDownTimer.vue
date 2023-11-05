@@ -1,15 +1,15 @@
 <script setup lang="ts">
 
 import { DeprecationTypes } from 'vue';
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   startTime: {
-	type: Date,
+	type: Number,
 	required: true,
   },
   endTime: {
-	type: Date,
+	type: Number,
 	required: true,
   },
 })
@@ -24,10 +24,8 @@ let secondsleft = ref(1)
 // stored in milliseconds
 let timeleft = ref(1)
 
-setInterval(()=>{
-	let currentTime = new Date()
-	console.log(currentTime.valueOf())
-	console.log(props.startTime.valueOf())
+function updateTimeCounter() {
+	let currentTime = Date.now()
 	if (currentTime < props.startTime) {
 		status.value = "not-started"
 		prompt.value = "距离比赛开始还有"
@@ -45,7 +43,10 @@ setInterval(()=>{
 	minutesleft.value = Math.floor(timeleft.value / 1000 / 60) % 60
 	hoursleft.value = Math.floor(timeleft.value / 1000 / 60 / 60) % 24
 	daysleft.value = Math.floor(timeleft.value / 1000 / 60 / 60 / 24)
-}, 1000);
+}
+
+watch(() => props.startTime, updateTimeCounter)
+setInterval(updateTimeCounter, 1000);
 
 </script>
 

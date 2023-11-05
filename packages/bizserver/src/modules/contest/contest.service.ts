@@ -40,8 +40,8 @@ export class ContestService {
   async createContest(): Promise<Contest> {
     const contest = new ContestEntity();
     contest.name = 'New Contest';
-    contest.startTime = new Date(4e12);
-    contest.endTime = new Date(4e12);
+    contest.startTime = 4e12; // in 2096
+    contest.endTime = 6e12;
     contest.metadata = {
       description: '',
       problems: []

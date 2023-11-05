@@ -1,8 +1,8 @@
 export interface Contest {
 	id: number
 	name: string
-	startTime: Date
-	endTime: Date
+	startTime: number	// In UNIX timestamp, milliseconds
+	endTime: number	// In UNIX timestamp, milliseconds
 	isPublic: boolean
 	metadata: {
 		description: string
@@ -29,7 +29,7 @@ export interface ContestWithProblemName extends Contest {
 export interface ContestListItem {
 	id: number,
 	name: string
-	startTime: Date
-	endTime: Date
+	startTime: number	// In UNIX timestamp, milliseconds
+	endTime: number	// In UNIX timestamp, milliseconds
 	isPublic: boolean
 }
