@@ -42,9 +42,9 @@ func (s *Server) Start() error {
 	return nil
 }
 
-func (s *Server) pull() (*models.PullMessage, error) {
+func (s *Server) pull() ([]*models.PullMessage, error) {
 	// TODO: increase limit
-	rslt := []&models.PullMessage{}
+	rslt := []*models.PullMessage{}
 	err := s.cb.Get(fmt.Sprintf("/api/v1/pull?limit=%v", 1), rslt)
 	if err != nil {
 		return nil, err
