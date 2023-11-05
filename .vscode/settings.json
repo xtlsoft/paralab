@@ -1,10 +1,14 @@
 {
   "cSpell.words": [
     "bizserver",
+    "dotenv",
     "fastify",
+    "godotenv",
+    "hasher",
     "nsqd",
     "paraci",
     "paralab",
+    "roundrobin",
     "Slurm",
     "typeful"
   ]
