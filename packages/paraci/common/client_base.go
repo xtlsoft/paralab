@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -200,4 +201,44 @@ func (c *ClientBase) Download(method string, endpoint string,
 		return nil, nil, err
 	}
 	return resp.Progress, resp.Wait, nil
+}
+
+func (c *ClientBase) Get(endpoint string, rslt interface{}) error {
+	b, err := c.Do("GET", endpoint, nil)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, rslt)
+}
+
+func (c *ClientBase) Post(endpoint string, body interface{}, rslt interface{}) error {
+	b, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	b, err = c.Do("POST", endpoint, b)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, rslt)
+}
+
+func (c *ClientBase) Put(endpoint string, body interface{}, rslt interface{}) error {
+	b, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	b, err = c.Do("PUT", endpoint, b)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, rslt)
+}
+
+func (c *ClientBase) Delete(endpoint string, rslt interface{}) error {
+	b, err := c.Do("DELETE", endpoint, nil)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, rslt)
 }
