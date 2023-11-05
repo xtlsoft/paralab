@@ -5,5 +5,5 @@ import (
 )
 
 func handleInit(ctx *cli.Context) {
-	shell := determineShell()
+	// shell := determineShell()
 }
