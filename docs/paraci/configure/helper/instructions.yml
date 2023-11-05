@@ -1,0 +1,37 @@
+shell: /bin/bash
+services:
+  update_toolchain:
+    wait: true
+    commands:
+      - command: apt update && apt upgrade
+        target: all
+  compile-hdf5:
+    provides: ["compile"]
+    requires: ["update_toolchain"]
+    workdir: /src/hdf5
+    commands:
+      - command: ./configure
+      - command: make && make install
+  compile-python:
+    provides: [compile]
+    requires: [update_toolchain]
+    workdir: /src/python
+    commands:
+      - command: ./configure
+      - command: make && make install
+  run-main:
+    requires: [compile]
+    waits: [compile]
+    wait: true
+    workdir: /app
+    shell: /usr/bin/my_conda_bash
+    commands:
+      - command: python3 ./run.py
+commands:
+  - service: paraci.broadcast_hostname
+  - execute: ls
+    arguments: ["/", "-la"]
+  - command: ls / -la
+  - service: run-main
+execve:
+  execute: /bin/init

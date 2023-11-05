@@ -1,11 +1,13 @@
 {
   "cSpell.words": [
     "bizserver",
+    "Execve",
     "fastify",
     "nsqd",
     "paraci",
     "paralab",
     "Slurm",
-    "typeful"
+    "typeful",
+    "workdir"
   ]
 }
