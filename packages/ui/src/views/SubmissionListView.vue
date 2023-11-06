@@ -20,9 +20,9 @@ function updateCurrentSubmissions() {
   fetchWithAuthInJson('/api/submission/submissionlist', 'GET', {
     startIndex: (current_page.value-1)*submissions_per_page,
     count: submissions_per_page,
-  }).then((submission_list: {submissions: Submission[], total_visible_problem_count: number}) => {
+  }).then((submission_list: {submissions: Submission[], total_visible_submission_count: number}) => {
     current_submissions.value = submission_list.submissions;
-    total_visible_submission_count.value = submission_list.total_visible_problem_count;
+    total_visible_submission_count.value = submission_list.total_visible_submission_count;
     total_pages.value = Math.ceil(total_visible_submission_count.value / submissions_per_page);
   }).catch((e) => {
     console.log(e)
