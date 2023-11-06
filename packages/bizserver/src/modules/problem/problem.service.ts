@@ -2,10 +2,11 @@ import { Injectable, Req, Res } from '@nestjs/common';
 import { BadRequestException } from '@nestjs/common';
 
 import env from "src/envs";
+import { minioClient, getBucketName } from 'src/minio';
 
 import { Problem, RoleMask, ProblemListItem, ROLE_PROBLEMSET_ADMIN, ContestListItem } from '@paralab/proto'
 import { ProblemEntity } from 'src/entity/problem';
-import { JudgeConfig, default_judge_config } from '@paralab/proto';
+import { JudgeConfig, default_judge_config, JudgeResult, default_judge_result } from '@paralab/proto';
 
 const MAX_PROBLEM_DESCRIPTION_LENGTH: number = 256*1024; // 256 KB
 

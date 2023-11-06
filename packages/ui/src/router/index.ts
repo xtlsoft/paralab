@@ -49,6 +49,10 @@ const router = createRouter({
       component: () => import('../views/EditUserProfileView.vue')
     },
     {
+      path: '/submission/:submissionid(\\d+)',
+      component: () => import('../views/SubmissionDetailView.vue')
+    },
+    {
       path: '/login',
       component: () => import('../views/LoginView.vue')
     },
