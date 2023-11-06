@@ -1,19 +1,22 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToOne } from 'typeorm';
 import { JudgeResult } from '@paralab/proto';
+import { ProblemEntity } from './problem';
+import { ContestEntity } from './contest';
+import { UserEntity } from './user';
 
 @Entity()
 export class SubmissionEntity extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number
 
-	@Column()
-	userId: number
+	@ManyToOne(() => UserEntity, (user) => user.submissions)
+	user: UserEntity
 
-	@Column()
-	problemId: number
+	@ManyToOne(() => ProblemEntity, (problem) => problem.submissions)
+	problem: ProblemEntity
 
-	@Column()
-	contestId: number	// "0" indicates that the submission is not in a contest
+	@ManyToOne(() => ContestEntity, (contest) => contest.submissions)
+	contest: ContestEntity	// "0" indicates that the submission is not in a contest
 
 	@Column("bigint")
 	submitTime: number	// In UNIX timestamp, milliseconds
@@ -26,4 +29,5 @@ export class SubmissionEntity extends BaseEntity {
 	
 	@Column("jsonb")
 	judgeResult: JudgeResult
+
 }

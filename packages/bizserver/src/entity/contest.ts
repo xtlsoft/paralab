@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany } from 'typeorm';
+import { SubmissionEntity } from './submission';
 
 @Entity()
 export class ContestEntity extends BaseEntity {
@@ -25,4 +26,7 @@ export class ContestEntity extends BaseEntity {
 			weight: number
 		}[]
 	}
+
+	@OneToMany(() => SubmissionEntity, (submission) => submission.contest)
+	submissions: SubmissionEntity[]
 }

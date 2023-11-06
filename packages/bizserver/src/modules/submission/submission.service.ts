@@ -6,15 +6,18 @@ import { minioClient, getBucketName } from 'src/minio';
 
 import { Submission } from "@paralab/proto";
 import { JudgeResult, default_judge_result } from '@paralab/proto';
+import { ProblemEntity } from "src/entity/problem";
+import { ContestEntity } from "src/entity/contest";
+import { UserEntity } from "src/entity/user";
 
 @Injectable()
 export class SubmissionService {
   // Submit a solution to the database and return its submissionId
   async submitSolutionToDB(problemId: number, contestId: number | undefined, userId: number): Promise<number> {
     let submission: SubmissionEntity = new SubmissionEntity();
-    submission.userId = userId;
-    submission.problemId = problemId;
-    submission.contestId = contestId === undefined ? 0 : contestId;
+    submission.user = await UserEntity.findOneBy({ id: userId });
+    submission.problem = await ProblemEntity.findOneBy({ id: problemId });
+    submission.contest = contestId === undefined ? null : await ContestEntity.findOneBy({ id: contestId });
     submission.submitTime = Date.now();
     submission.verdict = 'waiting';
     submission.score = 0;
@@ -31,7 +34,10 @@ export class SubmissionService {
   }
 
   async getSubmissionById(submissionId: number): Promise<Submission> {
-    const result = await SubmissionEntity.findOneBy({ id: submissionId });
+    const result = await SubmissionEntity.findOne({
+      where: { id: submissionId },
+      relations: ['user', 'problem', 'contest']
+    });
     if (!result) {
       throw new BadRequestException('problem not found');
     }

@@ -35,6 +35,15 @@ function onClickDeleteSubmission() {
 		});
 	}
 }
+
+function onClickRejudge() {
+	alert("Not implemented yet")
+}
+
+function onClickDownloadButton() {
+	alert("Not implemented yet")
+}
+
 </script>
 
 <template>
@@ -51,15 +60,15 @@ function onClickDeleteSubmission() {
 	<v-row>
 		<v-divider></v-divider>
 	</v-row>
-	<v-row>
+	<v-row v-if="submission">
 		<v-col
 		cols = "9">
-			<v-table v-if="submission">
+			<v-table>
 				<thead>
 					<tr>
 						<th class="text-center">Submission ID</th>
-						<th class="text-center">Problem</th>
 						<th class="text-center">User</th>
+						<th class="text-center">Problem</th>
 						<th class="text-center">提交时间</th>
 						<th class="text-center">状态</th>
 						<th class="text-center"></th>
@@ -67,13 +76,28 @@ function onClickDeleteSubmission() {
 				</thead>
 				<tbody>
 					<tr>
-						<td class="text-center">{{ submission.id }}</td>
-						<td class="text-center">{{ submission.problemId }}</td>
-						<td class="text-center">{{ submission.userId }}</td>
-						<td class="text-center">{{ (new Date(submission.submitTime)).toLocaleString() }}</td>
-						<td class="text-center">{{ submission.verdict }}</td>
+						<td class="text-center">
+							#{{ submission.id }}
+						</td>
+						<td class="text-center">
+							<router-link :to="`/user/${ submission.user.id }`">
+								#{{ submission.user.id }}. {{ submission.user.name }}
+							</router-link>
+						</td>
+						<td class="text-center">
+							<router-link :to="`/problem/${ submission.problem.id }`">
+								#{{ submission.problem.id }}. {{ submission.problem.name }}
+							</router-link>
+						</td>
+						<td class="text-center">
+							{{ (new Date(submission.submitTime)).toLocaleString() }}
+						</td>
+						<td class="text-center">
+							{{ submission.verdict }}
+						</td>
 						<td>
-							<v-btn>
+							<v-btn
+							@click="onClickDownloadButton">
 								下载
 							</v-btn>
 						</td>
@@ -84,12 +108,12 @@ function onClickDeleteSubmission() {
 		<v-col>
 			<v-list>
 				<v-list-item 
-				:to="`/problem/${ submission?.problemId }`"
+				:to="`/problem/${ submission.problem.id }`"
 				prepend-icon="mdi-arrow-left" 
 				title="转到题目"/>
 				<v-list-item 
-				v-if="submission && submission.contestId"
-				:to="`/contest/${ submission?.contestId }`"
+				v-if="submission && submission.contest?.id"
+				:to="`/contest/${ submission.contest.id }`"
 				prepend-icon="mdi-arrow-left"
 				title="转到比赛"></v-list-item>
 				<div v-if="cur_logged_in_user && (cur_logged_in_user.roleMask & (ROLE_PROBLEMSET_ADMIN | ROLE_CONTEST_ADMIN))">
@@ -98,11 +122,13 @@ function onClickDeleteSubmission() {
 					link 
 					prepend-icon="mdi-refresh"
 					title="重新评测"
+					@click="onClickRejudge"
 					></v-list-item>
 					<v-list-item
 					link 
 					prepend-icon="mdi-delete"
 					title="删除"
+					@click="onClickDeleteSubmission"
 					></v-list-item>
 				</div>
 			</v-list>

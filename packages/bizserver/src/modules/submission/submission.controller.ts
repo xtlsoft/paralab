@@ -22,6 +22,13 @@ export class SubmissionController {
               private readonly problemService: ProblemService,
               private readonly contestService: ContestService) {}
     
+  // GET /submissionlist: Get the submission list
+  // Permission checking logic:
+  //  - Contest admin & Problemset admin can view all submissions
+  //  - Normal users can see submissions that:
+  //    - Submitted by herself
+  //    - Submissions from the problemset and the submission belong to a public
+  //    - problem
   // POST /submission/: Submit a solution to a problem
   @Post('/')
   @UseInterceptors(FileInterceptor('file'))
@@ -67,7 +74,7 @@ export class SubmissionController {
   }
 
   // GET /submission/:submissionId: Get submission info
-  // Note about permission checking: Submissions from problemset are public to
+  // Note about permission checking: Submissions from problemset (public problems) are public to
   // everyone while submission from contests are private to the submitter
   @Get('/:id')
   @ApiOperation({ summary: 'Get submission info' })
@@ -78,7 +85,7 @@ export class SubmissionController {
     const userId: number | undefined = request['user_info'] ? (request['user_info'] as AccessToken).userId : undefined;
     const userRoles: number = userId ? request['user_info'].userRoles : 0;
     const submission: Submission = await this.submissionService.getSubmissionById(submissionId);
-    const is_in_contest_submission: boolean = submission.contestId !== 0;
+    const is_in_contest_submission: boolean = submission.contest !== null;
 
     const have_permission: boolean = await (async () => {
       // Perform permission checking
@@ -93,8 +100,7 @@ export class SubmissionController {
       // Third, for submissions from problemset, if the user is not the owner,
       // the problem must be public
       if (!is_in_contest_submission) {
-        const problem = await this.problemService.getProblemById(submission.problemId);
-        if (problem.isPublic) {
+        if (submission.problem.isPublic) {
           return true;
         }
       }

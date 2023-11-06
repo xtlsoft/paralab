@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany } from 'typeorm';
 import { RoleMask } from '@paralab/proto/src/user';
+import { SubmissionEntity } from './submission';
 
 @Entity()
 export class UserEntity extends BaseEntity {
@@ -23,4 +24,7 @@ export class UserEntity extends BaseEntity {
 		motto: string
 		email: string
 	}
+
+	@OneToMany(() => SubmissionEntity, (submission) => submission.user)
+	submissions: SubmissionEntity[]
 }
