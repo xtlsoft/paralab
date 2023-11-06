@@ -9,6 +9,8 @@ import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
 import type { User, Submission } from '@paralab/proto'
 import { ROLE_CONTEST_ADMIN, ROLE_PROBLEMSET_ADMIN } from '@paralab/proto';
 
+import SubmissionList from '@/components/SubmissionList.vue';
+
 const route = useRoute()
 const submissionId = parseInt(route.params.submissionid as string);
 
@@ -63,53 +65,9 @@ function onClickDownloadButton() {
 	<v-row v-if="submission">
 		<v-col
 		cols = "9">
-			<v-table>
-				<thead>
-					<tr>
-						<th class="text-center">ID</th>
-						<th class="text-center">提交者</th>
-						<th class="text-center">题目</th>
-						<th class="text-center">提交时间</th>
-						<th class="text-center">状态</th>
-						<th class="text-center">得分</th>
-						<th class="text-center"></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td class="text-center">
-							#{{ submission.id }}
-						</td>
-						<td class="text-center">
-							<router-link :to="`/user/${ submission.user.id }`">
-								#{{ submission.user.id }}. {{ submission.user.name }}
-							</router-link>
-						</td>
-						<td class="text-center">
-							<router-link :to="`/problem/${ submission.problem.id }`">
-								#{{ submission.problem.id }}. {{ submission.problem.name }}
-							</router-link>
-						</td>
-						<td class="text-center">
-							{{ (new Date(submission.submitTime)).toLocaleString() }}
-						</td>
-						<td class="text-center">
-							{{ submission.verdict }}
-						</td>
-						<td class="text-center">
-							{{ submission.score }}
-						</td>
-						<td>
-							<v-btn
-							@click="onClickDownloadButton"
-							color="green"
-          					size="small">
-								下载
-							</v-btn>
-						</td>
-					</tr>
-				</tbody>
-			</v-table>
+			<SubmissionList
+			:submissions="[submission]"
+			></SubmissionList>
 		</v-col>
 		<v-col>
 			<v-list>

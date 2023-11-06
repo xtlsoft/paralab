@@ -4,3 +4,4 @@ export * from './problem';
 export * from './contest';
 export * from './submission';
 export * from './judgeResult';
+export * from './job';

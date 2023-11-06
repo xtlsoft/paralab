@@ -12,6 +12,7 @@ import { ROLE_PROBLEMSET_ADMIN } from '@paralab/proto';
 
 const route = useRoute()
 const problemId = parseInt(route.params.problemid as string);
+const contestId = route.params.contestid ? parseInt(route.params.contestid as string) : undefined;
 
 const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
@@ -59,7 +60,7 @@ function onClickDeleteProblem() {
 		<v-col>
 			<v-list>
 				<v-list-item 
-				:to="`/problem/${ problemId }/submit`"
+				:to="contestId ? `/contest/${ contestId }/problem/${ problemId }/submit` : `/problem/${ problemId }/submit`"
 				prepend-icon="mdi-send-variant" 
 				title="提交"/>
 				<v-list-item 
