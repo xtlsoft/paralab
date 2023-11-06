@@ -66,11 +66,12 @@ function onClickDownloadButton() {
 			<v-table>
 				<thead>
 					<tr>
-						<th class="text-center">Submission ID</th>
-						<th class="text-center">User</th>
-						<th class="text-center">Problem</th>
+						<th class="text-center">ID</th>
+						<th class="text-center">提交者</th>
+						<th class="text-center">题目</th>
 						<th class="text-center">提交时间</th>
 						<th class="text-center">状态</th>
+						<th class="text-center">得分</th>
 						<th class="text-center"></th>
 					</tr>
 				</thead>
@@ -95,9 +96,14 @@ function onClickDownloadButton() {
 						<td class="text-center">
 							{{ submission.verdict }}
 						</td>
+						<td class="text-center">
+							{{ submission.score }}
+						</td>
 						<td>
 							<v-btn
-							@click="onClickDownloadButton">
+							@click="onClickDownloadButton"
+							color="green"
+          					size="small">
 								下载
 							</v-btn>
 						</td>

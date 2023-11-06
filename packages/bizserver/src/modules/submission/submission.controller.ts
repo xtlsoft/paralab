@@ -28,7 +28,19 @@ export class SubmissionController {
   //  - Normal users can see submissions that:
   //    - Submitted by herself
   //    - Submissions from the problemset and the submission belong to a public
-  //    - problem
+  //      problem
+  @Get('/submissionlist')
+  async getSubmissionList(
+    @Req() request: Request,
+    @Query("startIndex", new ParseIntPipe()) startIndex: number,
+    @Query("count", new ParseIntPipe()) count: number
+  ): Promise<{submissions: Submission[], total_visible_submission_count: number}> {
+    const userId: number | undefined = request['user_info'] ? (request['user_info'] as AccessToken).userId : undefined;
+    const userRoles: number = userId ? request['user_info'].userRoles : 0;
+    const result = await this.submissionService.getSubmissionList(startIndex, count, userId, userRoles);
+    return result;
+  }
+
   // POST /submission/: Submit a solution to a problem
   @Post('/')
   @UseInterceptors(FileInterceptor('file'))
@@ -94,7 +106,7 @@ export class SubmissionController {
         return true;
       }
       // Second, the submission's owner can see it
-      if (userId === submission.userId) {
+      if (userId === submission.user.id) {
         return true;
       }
       // Third, for submissions from problemset, if the user is not the owner,
