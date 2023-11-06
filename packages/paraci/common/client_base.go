@@ -20,7 +20,7 @@ import (
 type AddrPool interface {
 	Add(addr string)
 	Has(addr string) bool
-	Fail(addr string) string
+	Fail(addr string)
 	Get() string
 }
 

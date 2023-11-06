@@ -6,3 +6,10 @@ oss:
   endpoint: localhost:3000
   access_key: ak
   secret_key: token
+  buckets:
+    problems: problems
+    solutions: solutions
+interval:
+  min: 100ms
+  max: 5s
+max_concurrent: 4

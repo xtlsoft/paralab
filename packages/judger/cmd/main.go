@@ -37,8 +37,9 @@ func main() {
 					return err
 				}
 				conf := &models.Configure{
-					Pull: &models.PullConfigure{},
-					OSS:  &models.OSSConfigure{},
+					Pull:     &models.PullConfigure{},
+					OSS:      &models.OSSConfigure{},
+					Interval: &models.IntervalConfigure{},
 				}
 				err = yaml.Unmarshal(confRaw, conf)
 				if err != nil {
