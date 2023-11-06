@@ -9,7 +9,9 @@ oss:
   buckets:
     problems: problems
     solutions: solutions
+    artifacts: artifacts
 interval:
   min: 100ms
   max: 5s
 max_concurrent: 4
+temp_dir: /tmp/paralab

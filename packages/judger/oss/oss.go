@@ -14,7 +14,7 @@ import (
 // Client is OSS client
 var Client *minio.Client // TODO: more elegant way to handle this
 
-var ProblemsBucket, SolutionsBucket string
+var ProblemsBucket, SolutionsBucket, ArtifactsBucket string
 
 func Connect(conf *models.Configure) error {
 	m, err := minio.New(conf.OSS.Endpoint, &minio.Options{
@@ -26,6 +26,7 @@ func Connect(conf *models.Configure) error {
 	Client = m
 	ProblemsBucket = conf.OSS.Bucket.Problems
 	SolutionsBucket = conf.OSS.Bucket.Solutions
+	ArtifactsBucket = conf.OSS.Bucket.Artifacts
 	return nil
 }
 

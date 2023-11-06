@@ -9,6 +9,7 @@ type Configure struct {
 	OSS           *OSSConfigure      `yaml:"oss"`
 	Interval      *IntervalConfigure `yaml:"interval"`
 	MaxConcurrent int                `yaml:"max_concurrent"`
+	TempDir       string             `yaml:"temp_dir"`
 }
 
 type PullConfigure struct {
@@ -26,6 +27,7 @@ type OSSConfigure struct {
 type BucketConfigure struct {
 	Problems  string `yaml:"problems"`
 	Solutions string `yaml:"solutions"`
+	Artifacts string `yaml:"artifacts"`
 }
 
 type IntervalConfigure struct {

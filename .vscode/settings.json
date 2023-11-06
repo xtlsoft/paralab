@@ -11,6 +11,7 @@
     "paralab",
     "roundrobin",
     "Slurm",
+    "starlark",
     "typeful"
   ]
 }

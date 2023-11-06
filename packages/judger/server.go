@@ -1,8 +1,10 @@
 package judger
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"sync/atomic"
 	"time"
@@ -10,6 +12,8 @@ import (
 	"github.com/lcpu-club/paralab/packages/judger/models"
 	"github.com/lcpu-club/paralab/packages/judger/oss"
 	"github.com/lcpu-club/paralab/packages/paraci/common"
+	"github.com/mholt/archiver/v3"
+	"gopkg.in/yaml.v2"
 )
 
 type Server struct {
@@ -95,7 +99,37 @@ func (s *Server) handleMsgWrapper(msg *models.PullMessage) {
 }
 
 func (s *Server) handleMsg(msg *models.PullMessage) error {
+	// TODO: context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+
 	// Pull problem from OSS
+	problem := oss.NewProblem(msg.ProblemID)
+	metaRaw, err := problem.GetMeta(ctx)
+	if err != nil {
+		return err
+	}
+	meta := &models.ProblemMeta{
+		SolutionFiles: make(map[string]*models.SolutionFileMeta),
+	}
+	err = yaml.Unmarshal(metaRaw, meta)
+	if err != nil {
+		return err
+	}
+
+	wd, err := os.MkdirTemp(s.conf.TempDir, "paralab-judger")
+	if err != nil {
+		return err
+	}
+
+	// TODO: cache the problem
+	sf, err := problem.GetScriptsTarballStream(ctx)
+	if err != nil {
+		return err
+	}
+	archiver.UnarchiveStream(sf, wd, &archiver.Tar{
+		MkdirAll: true,
+	})
 
 	// Run the script
 

@@ -53,3 +53,33 @@ Inside problems bucket:
 Inside solutions bucket:
 
 - `<path/filename>`: Solution files
+
+## How to return results
+
+A POST request to `/api/v1/jobs` with the following body:
+
+```json
+{
+    "id": 1,
+    "result": {
+        "score": 100,
+        "status": "AC",
+        "artifacts": {
+            "artifact1": "path/filename1",
+            "artifact2": "path/filename2"
+        },
+        "extra": {}
+    }
+}
+```
+
+If error:
+
+```json
+{
+    "id": 1,
+    "result": {
+        "error": "error message"
+    }
+}
+```
