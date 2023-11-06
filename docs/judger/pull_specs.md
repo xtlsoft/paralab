@@ -4,7 +4,7 @@ Judger pulls from bizlayer using the following parameters:
 
 (With a signed key, judger will pull from bizserver)
 
-A single pull should be done with a GET request to `/api/v1/jobs` with the following parameters:
+A single pull should be done with a GET request to `/api/submission/jobs` with the following parameters:
 
 | Parameter | Description |
 | --------- | ----------- |
@@ -56,14 +56,14 @@ Inside solutions bucket:
 
 ## How to return results
 
-A POST request to `/api/v1/jobs` with the following body:
+A PUT request to `/api/submission/jobs` with the following body:
 
 ```json
 {
     "id": 1,
-    "status": "running", // running / waiting / completed
+    "verdict": "running", // running / waiting / completed / failed
+    "score": 100,
     "result": {
-        "score": 100,
         "status": "AC",
         "artifacts": {
             "artifact1": "path/filename1",
@@ -79,6 +79,8 @@ If error:
 ```json
 {
     "id": 1,
+    "status": "failed",
+    "score": 0,
     "result": {
         "error": "error message"
     }
