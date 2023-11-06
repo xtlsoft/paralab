@@ -8,7 +8,7 @@ images:
   - test.tar.gz
 artifacts: []
 solution_files:
-  code1.cpp:
+  solution:
     type: editor
     language: cpp
   code2.cpp:

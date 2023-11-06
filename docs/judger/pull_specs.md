@@ -18,7 +18,7 @@ Authentication is done by passing the following headers:
 
 `xxxx` is a HMAC-SHA256 signature plus timestamp using pre-defined keys.
 
-The signature is: `HMAC_SHA256(method + endpoint + body (if exists) + string(bytes_arr(int64(timestamp_secs))), key) + string(bytes_arr(int64(timestamp_secs))`.
+The signature is: `HMAC_SHA256(method + endpoint + body (if exists) + string(bytes_arr(int64(timestamp_secs))), key) + string(bytes_arr(int64(timestamp_secs)))`.
 
 An example response:
 
@@ -61,6 +61,7 @@ A POST request to `/api/v1/jobs` with the following body:
 ```json
 {
     "id": 1,
+    "status": "running", // running / waiting / completed
     "result": {
         "score": 100,
         "status": "AC",
