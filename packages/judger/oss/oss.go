@@ -38,6 +38,14 @@ func FetchSolutionFile(ctx context.Context, key string) (*minio.Object, error) {
 	return obj, nil
 }
 
+func FetchSolutionFileContent(ctx context.Context, key string) ([]byte, error) {
+	obj, err := FetchSolutionFile(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+	return io.ReadAll(obj)
+}
+
 func FetchProblemFile(ctx context.Context, id int64, key string) (*minio.Object, error) {
 	obj, err := Client.GetObject(ctx, ProblemsBucket,
 		fmt.Sprintf("%d/%v", id, key), minio.GetObjectOptions{})
@@ -93,4 +101,18 @@ func (p *Problem) ShouldUpdate(ctx context.Context) (bool, error) {
 
 func (p *Problem) GetID() int64 {
 	return p.id
+}
+
+func (p *Problem) GetAsset(ctx context.Context, key string) (*minio.Object, error) {
+	return p.FetchFile(ctx, key)
+}
+
+func (p *Problem) UploadArtifact(ctx context.Context, key string, r io.Reader, size int64) (string, error) {
+	k := fmt.Sprintf("%v/%s", p.id, key)
+	_, err := Client.PutObject(ctx, ArtifactsBucket,
+		k, r, size, minio.PutObjectOptions{})
+	if err != nil {
+		return "", err
+	}
+	return k, nil
 }

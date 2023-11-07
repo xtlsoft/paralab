@@ -8,3 +8,24 @@ type PullMessage struct {
 	SubmittedAt int64             `json:"submitted_at"`
 	Priority    int               `json:"priority"`
 }
+
+const (
+	ResultStatusRunning   = "running"
+	ResultStatusWaiting   = "waiting"
+	ResultStatusCompleted = "completed"
+	ResultStatusFailed    = "failed"
+)
+
+type ResultMessage struct {
+	ID     int64       `json:"id"`
+	Status string      `json:"status"`
+	Result *ResultBody `json:"result"`
+}
+
+type ResultBody struct {
+	Error     error                  `json:"error,omitempty"`
+	Score     int                    `json:"score"`
+	Status    string                 `json:"status"`
+	Artifacts map[string]string      `json:"artifacts"`
+	Extra     map[string]interface{} `json:"extra"`
+}

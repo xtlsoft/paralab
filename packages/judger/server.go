@@ -1,20 +1,25 @@
 package judger
 
 import (
+	"archive/tar"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sync/atomic"
 	"time"
 
 	"github.com/lcpu-club/paralab/packages/judger/models"
 	"github.com/lcpu-club/paralab/packages/judger/oss"
+	"github.com/lcpu-club/paralab/packages/judger/scripting"
 	"github.com/lcpu-club/paralab/packages/paraci/common"
-	"github.com/mholt/archiver/v3"
 	"gopkg.in/yaml.v2"
 )
+
+const jobsEndpoint = "/api/submission/jobs"
 
 type Server struct {
 	conf           *models.Configure
@@ -72,11 +77,15 @@ func (s *Server) Start() error {
 
 func (s *Server) pull(limit int) ([]*models.PullMessage, error) {
 	rslt := []*models.PullMessage{}
-	err := s.cb.Get(fmt.Sprintf("/api/v1/pull?limit=%v", limit), rslt)
+	err := s.cb.Get(fmt.Sprintf("%s?limit=%v", jobsEndpoint, limit), rslt)
 	if err != nil {
 		return nil, err
 	}
 	return rslt, nil
+}
+
+func (s *Server) PushResult(result *models.ResultMessage) error {
+	return s.cb.Post(jobsEndpoint, result, nil)
 }
 
 func (s *Server) handleMsgWrapper(msg *models.PullMessage) {
@@ -127,11 +136,59 @@ func (s *Server) handleMsg(msg *models.PullMessage) error {
 	if err != nil {
 		return err
 	}
-	archiver.UnarchiveStream(sf, wd, &archiver.Tar{
-		MkdirAll: true,
+	defer sf.Close()
+	tr := tar.NewReader(sf)
+	for {
+		th, err := tr.Next()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return err
+		}
+		if th.Typeflag == tar.TypeDir {
+			os.MkdirAll(filepath.Join(wd, th.Name), 0755)
+			continue
+		}
+		outputFile, err := os.Create(
+			filepath.Join(wd, th.Name),
+		)
+		if err != nil {
+			return err
+		}
+		defer outputFile.Close()
+		_, err = io.Copy(outputFile, tr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Run the scripts
+	scriptPath := filepath.Join(wd, meta.Entrance)
+	scriptEngine, err := scripting.Engine(filepath.Ext(scriptPath))
+	if err != nil {
+		return err
+	}
+	code, err := os.ReadFile(scriptPath)
+	if err != nil {
+		return err
+	}
+	sCtx := scripting.NewScriptContext(s.PushResult, s.conf, msg.ID, msg, wd, meta)
+	r, err := scriptEngine.Run(code, sCtx)
+
+	if err != nil {
+		return s.PushResult(&models.ResultMessage{
+			ID:     msg.ID,
+			Status: models.ResultStatusFailed,
+			Result: &models.ResultBody{
+				Error: err,
+			},
+		})
+	}
+
+	return s.PushResult(&models.ResultMessage{
+		ID:     msg.ID,
+		Status: models.ResultStatusCompleted,
+		Result: r.Body,
 	})
-
-	// Run the script
-
-	return nil
 }
