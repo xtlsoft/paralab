@@ -14,7 +14,7 @@ type StarlarkEngine struct {
 	ctx    *scripting.ScriptContext
 }
 
-func NewStarlarkEngine() *StarlarkEngine {
+func NewStarlarkEngine() scripting.ScriptEngine {
 	return &StarlarkEngine{
 		output: *bytes.NewBuffer([]byte{}),
 		rslt:   &scripting.ScriptResult{},
