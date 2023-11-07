@@ -23,11 +23,11 @@ func (agent *Agent) SpawnContainerHandler(req *restful.Request, resp *restful.Re
 }
 
 func (agent *Agent) KillContainerHandler(req *restful.Request, resp *restful.Response) {
-
+	
 }
 
 func (agent *Agent) ListContainersHandler(req *restful.Request, resp *restful.Response) {
-
+	
 }
 
 func (agent *Agent) IndexHandler(req *restful.Request, resp *restful.Response) {

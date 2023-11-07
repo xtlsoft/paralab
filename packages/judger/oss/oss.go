@@ -24,9 +24,9 @@ func Connect(conf *models.Configure) error {
 		return err
 	}
 	Client = m
-	ProblemsBucket = conf.OSS.Bucket.Problems
-	SolutionsBucket = conf.OSS.Bucket.Solutions
-	ArtifactsBucket = conf.OSS.Bucket.Artifacts
+	ProblemsBucket = conf.OSS.Buckets.Problems
+	SolutionsBucket = conf.OSS.Buckets.Solutions
+	ArtifactsBucket = conf.OSS.Buckets.Artifacts
 	return nil
 }
 

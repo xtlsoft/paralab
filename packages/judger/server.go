@@ -77,7 +77,7 @@ func (s *Server) Start() error {
 
 func (s *Server) pull(limit int) ([]*models.PullMessage, error) {
 	rslt := []*models.PullMessage{}
-	err := s.cb.Get(fmt.Sprintf("%s?limit=%v", jobsEndpoint, limit), rslt)
+	err := s.cb.Get(fmt.Sprintf("%s?limit=%v", jobsEndpoint, limit), &rslt)
 	if err != nil {
 		return nil, err
 	}

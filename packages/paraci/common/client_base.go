@@ -220,7 +220,10 @@ func (c *ClientBase) Post(endpoint string, body interface{}, rslt interface{}) e
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(b, rslt)
+	if rslt != nil {
+		return json.Unmarshal(b, rslt)
+	}
+	return nil
 }
 
 func (c *ClientBase) Put(endpoint string, body interface{}, rslt interface{}) error {

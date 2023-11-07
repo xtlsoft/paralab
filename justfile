@@ -9,7 +9,7 @@
 VERSION := "0.0.1"
 
 # The default target to be run by just.
-default: greet tidy-gomod build-paraci
+default: greet tidy-gomod build-judger
 
 greet:
   @echo "paralab development tool -- version {{VERSION}}"
@@ -27,6 +27,10 @@ tidy-gomod:
   cd packages/paraci && go mod tidy && cd ../..
   cd packages/bizserver && go mod tidy && cd ../..
   cd packages/judger && go mod tidy && cd ../..
+
+build-judger:
+  @echo "=> Building judger..."
+  go build -o ./packages/paraci/dist/paralab-judger ./packages/judger/cmd
 
 build-paraci-helper:
   @echo "=> Building paraci-helper..."

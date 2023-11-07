@@ -18,13 +18,13 @@ type PullConfigure struct {
 }
 
 type OSSConfigure struct {
-	Endpoint  string           `yaml:"endpoint"`
-	AccessKey string           `yaml:"access_key"`
-	SecretKey string           `yaml:"secret_key"`
-	Bucket    *BucketConfigure `yaml:"bucket"`
+	Endpoint  string            `yaml:"endpoint"`
+	AccessKey string            `yaml:"access_key"`
+	SecretKey string            `yaml:"secret_key"`
+	Buckets   *BucketsConfigure `yaml:"buckets"`
 }
 
-type BucketConfigure struct {
+type BucketsConfigure struct {
 	Problems  string `yaml:"problems"`
 	Solutions string `yaml:"solutions"`
 	Artifacts string `yaml:"artifacts"`

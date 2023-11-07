@@ -1,6 +1,0 @@
-job0_conf = get_content("job0.yml")
-
-job0 = paralab.job(job0_conf)
-job0.wait()
-
-result(mark=0)
