@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/lcpu-club/paralab/packages/judger/scripting"
-	"go.starlark.net/starlark"
+	star "go.starlark.net/starlark"
 )
 
 type StarlarkEngine struct {
@@ -14,7 +14,7 @@ type StarlarkEngine struct {
 	ctx    *scripting.ScriptContext
 }
 
-func NewStarlarkEngine() *StarlarkEngine {
+func NewStarlarkEngine() scripting.ScriptEngine {
 	return &StarlarkEngine{
 		output: *bytes.NewBuffer([]byte{}),
 		rslt:   &scripting.ScriptResult{},
@@ -31,30 +31,31 @@ func (e *StarlarkEngine) GetExtensionName() string {
 
 func (e *StarlarkEngine) Run(code []byte, ctx *scripting.ScriptContext) (*scripting.ScriptResult, error) {
 	e.ctx = ctx
-	thread := &starlark.Thread{
+	thread := &star.Thread{
 		Name:  "judge",
 		Print: e.print,
 	}
 	env := e.declareEnvs()
-	_, err := starlark.ExecFile(thread, ctx.Meta.Entrance, code, env)
+	_, err := star.ExecFile(thread, ctx.Meta.Entrance, code, env)
 	e.rslt.Output = e.output.String()
 	return e.rslt, err
 }
 
-type StarlarkFn func(thread *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwArgs []starlark.Tuple) (starlark.Value, error)
+type StarlarkFn func(thread *star.Thread, fn *star.Builtin, args star.Tuple, kwArgs []star.Tuple) (star.Value, error)
 
-func (e *StarlarkEngine) declareEnvs() starlark.StringDict {
-	env := starlark.StringDict{
-		"job_id": starlark.String(strconv.FormatInt(e.ctx.JobID, 10)),
+func (e *StarlarkEngine) declareEnvs() star.StringDict {
+	env := star.StringDict{
+		"job_id": star.String(strconv.FormatInt(e.ctx.JobID, 10)),
 	}
 
 	addFn := func(n string, f StarlarkFn) {
-		env[n] = starlark.NewBuiltin(n, f)
+		env[n] = star.NewBuiltin(n, f)
 	}
 
 	addFn("read_solution", e.readSolution)
 	addFn("read_script", e.readScript)
 	addFn("result", e.result)
+	addFn("sleep", e.sleep)
 
 	return env
 }

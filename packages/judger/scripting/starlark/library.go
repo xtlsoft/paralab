@@ -4,25 +4,26 @@ import (
 	"context"
 	"errors"
 	"os"
+	"time"
 	"path/filepath"
 
 	"github.com/lcpu-club/paralab/packages/judger/models"
 	"github.com/lcpu-club/paralab/packages/judger/oss"
-	"go.starlark.net/starlark"
+	star "go.starlark.net/starlark"
 )
 
-func (e *StarlarkEngine) print(_ *starlark.Thread, msg string) {
+func (e *StarlarkEngine) print(_ *star.Thread, msg string) {
 	e.output.WriteString(msg)
 }
 
 func (e *StarlarkEngine) readScript(
-	thread *starlark.Thread,
-	b *starlark.Builtin,
-	args starlark.Tuple,
-	kwArgs []starlark.Tuple,
-) (starlark.Value, error) {
+	thread *star.Thread,
+	b *star.Builtin,
+	args star.Tuple,
+	kwArgs []star.Tuple,
+) (star.Value, error) {
 	var name string
-	if err := starlark.UnpackArgs(b.Name(), args, kwArgs, "name", &name); err != nil {
+	if err := star.UnpackArgs(b.Name(), args, kwArgs, "name", &name); err != nil {
 		return nil, err
 	}
 	fName := filepath.Join(e.ctx.Wd, name)
@@ -30,17 +31,17 @@ func (e *StarlarkEngine) readScript(
 	if err != nil {
 		return nil, err
 	}
-	return starlark.String(fContent), nil
+	return star.String(fContent), nil
 }
 
 func (e *StarlarkEngine) readSolution(
-	thread *starlark.Thread,
-	b *starlark.Builtin,
-	args starlark.Tuple,
-	kwArgs []starlark.Tuple,
-) (starlark.Value, error) {
+	thread *star.Thread,
+	b *star.Builtin,
+	args star.Tuple,
+	kwArgs []star.Tuple,
+) (star.Value, error) {
 	var name string
-	if err := starlark.UnpackArgs(b.Name(), args, kwArgs, "name", &name); err != nil {
+	if err := star.UnpackArgs(b.Name(), args, kwArgs, "name", &name); err != nil {
 		return nil, err
 	}
 	k, ok := e.ctx.PullMessage.Solution[name]
@@ -51,19 +52,19 @@ func (e *StarlarkEngine) readSolution(
 	if err != nil {
 		return nil, err
 	}
-	return starlark.String(s), nil
+	return star.String(s), nil
 }
 
 func (e *StarlarkEngine) result(
-	thread *starlark.Thread,
-	b *starlark.Builtin,
-	args starlark.Tuple,
-	kwArgs []starlark.Tuple,
-) (starlark.Value, error) {
+	thread *star.Thread,
+	b *star.Builtin,
+	args star.Tuple,
+	kwArgs []star.Tuple,
+) (star.Value, error) {
 	var score int
 	var status string
-	var extra = &starlark.Dict{}
-	if err := starlark.UnpackArgs(b.Name(), args, kwArgs, "score", &score, "status", &status, "extra", &extra); err != nil {
+	var extra = &star.Dict{}
+	if err := star.UnpackArgs(b.Name(), args, kwArgs, "score", &score, "status", &status, "extra", &extra); err != nil {
 		return nil, err
 	}
 	if e.rslt.Body == nil {
@@ -84,25 +85,25 @@ func (e *StarlarkEngine) result(
 	if err != nil {
 		return nil, err
 	}
-	return starlark.None, nil
+	return star.None, nil
 }
 
-func starlarkValToGoVal(val starlark.Value) interface{} {
+func starlarkValToGoVal(val star.Value) interface{} {
 	switch val.Type() {
 	case "bool":
-		return bool(val.(starlark.Bool))
+		return bool(val.(star.Bool))
 	case "int":
-		x, ok := val.(starlark.Int).Int64()
+		x, ok := val.(star.Int).Int64()
 		if !ok {
-			return val.(starlark.Int).BigInt()
+			return val.(star.Int).BigInt()
 		}
 		return x
 	case "float":
-		return float64(val.(starlark.Float))
+		return float64(val.(star.Float))
 	case "string":
-		return string(val.(starlark.String))
+		return string(val.(star.String))
 	case "dict":
-		d := val.(*starlark.Dict)
+		d := val.(*star.Dict)
 		r := make(map[string]interface{})
 		for _, k := range d.Keys() {
 			m, ok, err := d.Get(k)
@@ -113,7 +114,7 @@ func starlarkValToGoVal(val starlark.Value) interface{} {
 		}
 		return r
 	case "list":
-		l := val.(*starlark.List)
+		l := val.(*star.List)
 		r := make([]interface{}, l.Len())
 		for i := 0; i < l.Len(); i++ {
 			r[i] = starlarkValToGoVal(l.Index(i))
@@ -122,4 +123,18 @@ func starlarkValToGoVal(val starlark.Value) interface{} {
 	default:
 		return nil
 	}
+}
+
+func (e *StarlarkEngine) sleep(
+	thread *star.Thread,
+	b *star.Builtin,
+	args star.Tuple,
+	kwArgs []star.Tuple,
+) (star.Value, error) {
+	var seconds int
+	if err := star.UnpackArgs(b.Name(), args, kwArgs, "seconds", &seconds); err != nil {
+		return nil, err
+	}
+	time.Sleep(time.Duration(seconds) * time.Second)
+	return star.None, nil
 }
