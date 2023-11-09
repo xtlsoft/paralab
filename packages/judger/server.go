@@ -72,6 +72,10 @@ func (s *Server) Start() error {
 
 		for _, m := range msg {
 			go s.handleMsgWrapper(m)
+			// NOTE(intlsy): The following line is a hotfix.
+			// Here we wait for the goroutine to finish due to that the bizserver
+			// does not mark a job as "running" when it is pulled (and I do not
+			// have time for studying database locks).
 			<-s.finChan
 		}
 	}
