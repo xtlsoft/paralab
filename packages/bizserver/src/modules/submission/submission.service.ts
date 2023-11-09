@@ -72,6 +72,14 @@ export class SubmissionService {
     return result;
   }
 
+  async rejudge(submissionId: number): Promise<void> {
+    await SubmissionEntity.update({ id: submissionId }, {
+      verdict: 'waiting',
+      score: 0,
+      judgeResult: default_judge_result
+    });
+  }
+
   // Get jobs (for ParaCI)
   async getJobs(jobs_limit: number): Promise<Job[]> {
     let query_builder = SubmissionEntity.createQueryBuilder('submission')
@@ -87,9 +95,9 @@ export class SubmissionService {
         user_id: submission.user.id,
         problem_id: submission.problem.id,
         solution: {
-          solution: `paralab-submissions/submission-${submission.id}` // This is the object name in OSS
+          solution: `submission-${submission.id}` // This is the object name in OSS
         },
-        submitted_at: submission.submitTime,
+        submitted_at: (new Date(submission.submitTime)).toISOString(),
         priority: 0
       }
     });

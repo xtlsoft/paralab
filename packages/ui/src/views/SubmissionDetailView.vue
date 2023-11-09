@@ -17,13 +17,19 @@ const submissionId = parseInt(route.params.submissionid as string);
 const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
 const submission = ref<Submission | null>(null)
-onMounted(() => {
+
+function updateSubmission() {
 	fetchWithAuthInJson(`/api/submission/${submissionId}`, "GET", {}).then((res: Submission) => {
 		submission.value = res
 	}).catch((e) => {
 		console.log(e)
 		alert(`获取题目描述失败: ${e}`)
 	})
+}
+
+onMounted(() => {
+	updateSubmission();
+	setInterval(updateSubmission, 1000);
 })
 
 function onClickDeleteSubmission() {
@@ -39,11 +45,12 @@ function onClickDeleteSubmission() {
 }
 
 function onClickRejudge() {
-	alert("Not implemented yet")
-}
-
-function onClickDownloadButton() {
-	alert("Not implemented yet")
+	fetchWithAuthInJson(`/api/submission/${submissionId}`, "PUT", {}).then((res) => {
+		alert("已加入评测队列")
+	}).catch((e) => {
+		console.log(e)
+		alert(`加入评测队列失败: ${e}`)
+	});
 }
 
 </script>

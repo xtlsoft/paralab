@@ -25,10 +25,6 @@ class ModifyJobStatusDTO {
   @ApiProperty()
   verdict: SubmissionVerdict
 
-  @IsNumber()
-  @ApiProperty()
-  score: number
-
   @ApiProperty()
   result: any
 }
@@ -125,7 +121,7 @@ export class SubmissionController {
     if (!submission_verdicts.includes(payload.verdict)) {
       throw new BadRequestException(`Invalid verdict. Valid verdicts are: [${submission_verdicts.join(', ')}]`);
     }
-    await this.submissionService.updateJobStatus(payload.id, payload.verdict, payload.score, payload.result);
+    await this.submissionService.updateJobStatus(payload.id, payload.verdict, payload.result.score, payload.result);
     return {};
   }
 
@@ -168,5 +164,17 @@ export class SubmissionController {
     }
 
     return submission;
+  }
+
+  // PUT /submission/:submissionId: Rejudge
+  @Put('/:id')
+  @ApiOperation({ summary: 'Rejudge' })
+  @Roles([ROLE_PROBLEMSET_ADMIN | ROLE_CONTEST_ADMIN])
+  async rejudge(
+    @Req() request: Request,
+    @Param('id', new ParseIntPipe()) submissionId: number
+  ): Promise<{}> {
+    await this.submissionService.rejudge(submissionId);
+    return {};
   }
 }
