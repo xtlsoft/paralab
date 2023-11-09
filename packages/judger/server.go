@@ -40,6 +40,7 @@ func NewServer(conf *models.Configure) *Server {
 			conf.Pull.Key, 10*time.Second),
 		maxConcurrent:  int32(maxConcurrent),
 		currConcurrent: 0,
+		finChan:        make(chan struct{}, maxConcurrent),
 	}
 }
 
@@ -71,6 +72,7 @@ func (s *Server) Start() error {
 
 		for _, m := range msg {
 			go s.handleMsgWrapper(m)
+			<-s.finChan
 		}
 	}
 }
@@ -85,7 +87,7 @@ func (s *Server) pull(limit int) ([]*models.PullMessage, error) {
 }
 
 func (s *Server) PushResult(result *models.ResultMessage) error {
-	return s.cb.Post(jobsEndpoint, result, nil)
+	return s.cb.Put(jobsEndpoint, result, nil)
 }
 
 func (s *Server) handleMsgWrapper(msg *models.PullMessage) {

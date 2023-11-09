@@ -26,7 +26,7 @@ func (e *StarlarkEngine) GetName() string {
 }
 
 func (e *StarlarkEngine) GetExtensionName() string {
-	return "star"
+	return ".star"
 }
 
 func (e *StarlarkEngine) Run(code []byte, ctx *scripting.ScriptContext) (*scripting.ScriptResult, error) {
@@ -57,4 +57,10 @@ func (e *StarlarkEngine) declareEnvs() starlark.StringDict {
 	addFn("result", e.result)
 
 	return env
+}
+
+func init() {
+	scripting.RegisterEngine(func() scripting.ScriptEngine {
+		return NewStarlarkEngine()
+	})
 }
