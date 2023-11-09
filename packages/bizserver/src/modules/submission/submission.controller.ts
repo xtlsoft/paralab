@@ -177,4 +177,16 @@ export class SubmissionController {
     await this.submissionService.rejudge(submissionId);
     return {};
   }
+
+  // DELETE /submission/:submissionId: Delete a submission
+  @Delete('/:id')
+  @ApiOperation({ summary: 'Delete a submission' })
+  @Roles([ROLE_PROBLEMSET_ADMIN | ROLE_CONTEST_ADMIN])
+  async deleteSubmission(
+    @Req() request: Request,
+    @Param('id', new ParseIntPipe()) submissionId: number
+  ): Promise<{}> {
+    await this.submissionService.deleteSubmission(submissionId);
+    return {};
+  }
 }

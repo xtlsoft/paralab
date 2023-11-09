@@ -80,6 +80,10 @@ export class SubmissionService {
     });
   }
 
+  async deleteSubmission(submissionId: number): Promise<void> {
+    await SubmissionEntity.delete({ id: submissionId });
+  }
+
   // Get jobs (for ParaCI)
   async getJobs(jobs_limit: number): Promise<Job[]> {
     let query_builder = SubmissionEntity.createQueryBuilder('submission')
