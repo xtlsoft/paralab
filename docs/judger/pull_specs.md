@@ -4,7 +4,7 @@ Judger pulls from bizlayer using the following parameters:
 
 (With a signed key, judger will pull from bizserver)
 
-A single pull should be done with a GET request to `/api/submission/jobs` with the following parameters:
+A single pull should be done with a GET request to `/api/v1/jobs` with the following parameters:
 
 | Parameter | Description |
 | --------- | ----------- |
@@ -18,7 +18,7 @@ Authentication is done by passing the following headers:
 
 `xxxx` is a HMAC-SHA256 signature plus timestamp using pre-defined keys.
 
-The signature is: `HMAC_SHA256(method + endpoint + body (if exists) + string(bytes_arr(int64(timestamp_secs))), key) + string(bytes_arr(int64(timestamp_secs)))`.
+The signature is: `string(bytes_arr(int64(timestamp_secs))) + HMAC_SHA256(method + endpoint + body (if exists) + string(bytes_arr(int64(timestamp_secs))), key)`.
 
 An example response:
 
@@ -56,14 +56,14 @@ Inside solutions bucket:
 
 ## How to return results
 
-A PUT request to `/api/submission/jobs` with the following body:
+A POST request to `/api/v1/jobs` with the following body:
 
 ```json
 {
     "id": 1,
-    "verdict": "running", // running / waiting / completed / failed
-    "score": 100,
+    "status": "running", // running / waiting / completed
     "result": {
+        "score": 100,
         "status": "AC",
         "artifacts": {
             "artifact1": "path/filename1",
@@ -79,8 +79,6 @@ If error:
 ```json
 {
     "id": 1,
-    "status": "failed",
-    "score": 0,
     "result": {
         "error": "error message"
     }
