@@ -1,0 +1,16 @@
+title: Test Problem
+entrance: main.star # entrance judge script
+assets:
+  - 0.tar.gz
+attachments:
+  - 0.txt
+images:
+  - test.tar.gz
+artifacts: []
+solution_files:
+  solution:
+    type: editor
+    language: cpp
+  code2.cpp:
+    type: upload
+    allowed_extensions: [cpp, c, cxx, cc]
