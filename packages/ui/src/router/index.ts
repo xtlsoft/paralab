@@ -13,16 +13,48 @@ const router = createRouter({
       component: () => import('../views/ProblemListView.vue')
     },
     {
-      path: '/problem/:problemid',
+      path: '/problem/:problemid(\\d+)',
       component: () => import('../views/ProblemDetailView.vue')
     },
     {
-      path: '/submit/:problemid',
+      path: '/problem/:problemid(\\d+)/edit',
+      component: () => import('../views/ProblemEditView.vue')
+    },
+    {
+      path: '/problem/:problemid(\\d+)/submit',
       component: () => import('../views/SubmitCodeView.vue')
     },
     {
-      path: '/user/:userid',
+      path: '/contestlist',
+      component: () => import('../views/ContestListView.vue')
+    },
+    {
+      path: '/contest/:contestid(\\d+)',
+      component: () => import('../views/ContestDetailView.vue')
+    },
+    {
+      path: '/contest/:contestid(\\d+)/edit',
+      component: () => import('../views/ContestEditView.vue')
+    },
+    {
+      path: '/contest/:contestid(\\d+)/problem/:problemid(\\d+)',
+      component: () => import('../views/ProblemDetailView.vue')
+    },
+    {
+      path: '/user/:userId(\\d+)',
       component: () => import('../views/UserProfileView.vue')
+    },
+    {
+      path: '/user/:userId(\\d+)/edit',
+      component: () => import('../views/EditUserProfileView.vue')
+    },
+    {
+      path: '/submissionlist',
+      component: () => import('../views/SubmissionListView.vue')
+    },
+    {
+      path: '/submission/:submissionid(\\d+)',
+      component: () => import('../views/SubmissionDetailView.vue')
     },
     {
       path: '/login',

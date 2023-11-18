@@ -5,21 +5,12 @@ const rules = [
 </script>
 
 <template>
-    <v-container
-        id="input-usage"
-        fluid
-    >
-        <v-row>
-            <v-col cols="12">
-                <v-text-field
-                    prepend-inner-icon="mdi-magnify"
-                    label="题目名称/题号/..."
-                    :rules="rules"
-                    hide-details="auto"
-                    variant="solo"
-                    rounded
-                />
-            </v-col>
-        </v-row>
-    </v-container>
+    <v-text-field
+        prepend-inner-icon="mdi-magnify"
+        label="题目名称/题号/..."
+        :rules="rules"
+        hide-details="auto"
+        variant="solo"
+        rounded
+    />
 </template>

@@ -25,9 +25,41 @@ This is the monorepo of Paralab. It contains the following sub-projects:
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Node.js](https://nodejs.org/en/download/)
 - [Golang](https://golang.org/doc/install)
-- [PostgreSQL](https://www.postgresql.org/download/)
-- [Redis](https://redis.io/download)
 - [Etcd](https://etcd.io)
 - [MinIO](https://min.io/download)
 - [nsq](https://nsq.io/deployment/installing.html)
 - [Just](https://just.systems)
+
+### Start PostgreSQL and Redis
+
+We've prepares a docker compose file for you to start PostgreSQL and Redis in one click. You can start them by running the following command under the root directory of this monorepo:
+
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+This starts a PostgreSQL instance and a Redis instance. You can use the following command to stop them:
+
+```bash
+docker-compose -f docker-compose.dev.yml down
+```
+
+### Launch the Bizserver
+
+If you are launching the bizserver for the first time, you need to copy the `.env.example` file to `.env` and modify the environment variables in it.
+
+To start the bizserver, navigate to the `bizserver` directory and run the following command:
+
+```bash
+set -o allexport && source ../../.env && set +o allexport	# This exports the environment variables in the .env file. Copied from https://stackoverflow.com/a/30969768/16569836
+npm run start:dev
+```
+
+### Launch the UI
+
+Navigate to `packages/ui` and run the following command:
+
+```bash
+export PROXY_BIZSERVER_ADDR=http://localhost:3000	# This sets the address of the bizserver. All requests to /api will be redirected to http://localhost:3000/api. You can change it to your own bizserver address.
+npm run dev
+```

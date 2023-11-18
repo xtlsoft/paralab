@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import user from '../user_data'
 import { ref } from 'vue'
 
 let form = ref(false)
 let username = ref(null)
+let email = ref(null)
 let password0 = ref(null)
 let password1 = ref(null)
 let loading = ref(false)
@@ -18,10 +18,35 @@ function onSubmit() {
         alert("两次输入的密码不一致")
         return
     }
+	fetch("/api/user/register", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			userName: username.value,
+			email: email.value,
+			password: password0.value
+		})
+	}).then(async (res) => {
+		if (res.ok) {
+			alert("注册成功")
+			window.location.href = "/login"
+		} else {
+			const json = await res.json();
+			alert(`注册失败: ${json["message"] || res.statusText}`)
+		}
+	}).catch((e) => {
+		alert(e)
+	})
 }
 
 function required(value: string) {
 	return !!value || "必填项"
+}
+
+function isEmail(value: string) {
+	return /.+@.+/.test(value) || 'Invalid Email address'
 }
 
 </script>
@@ -54,8 +79,21 @@ function required(value: string) {
 			clearable
 			variant="solo"
 			prepend-inner-icon="mdi-account"
+			autocomplete="username"
 			/>
-			<!-- hide password -->
+
+			<v-text-field
+			label="Email"
+			v-model:model-value="email"
+			:readonly="loading"
+			:rules="[required, isEmail]"
+			class="mb-2"
+			clearable
+			variant="solo"
+			prepend-inner-icon="mdi-email"
+			autocomplete="email"
+			/>
+
 			<v-text-field
 			label="密码"
 			type="password"
@@ -66,6 +104,7 @@ function required(value: string) {
 			clearable
 			variant="solo"
 			prepend-inner-icon="mdi-lock"
+			autocomplete="new-password"
 			/>
 
             <v-text-field
@@ -78,6 +117,7 @@ function required(value: string) {
 			clearable
 			variant="solo"
 			prepend-inner-icon="mdi-lock"
+			autocomplete="new-password"
 			/>
 		
 			<v-btn
