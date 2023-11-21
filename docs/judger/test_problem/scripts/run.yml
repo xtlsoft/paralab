@@ -1,0 +1,59 @@
+region: cn-beijing-ap0
+steps:
+  - name: fetch
+    image: paralab/fetch
+    volumes:
+      - name: solution
+        path: /solution
+    vars: [PARALAB_CONTEXT]
+    commands:
+      - shell: paralab-fetch.sh /solution
+  - name: build
+    image: library/ubuntu:22.04
+    volumes:
+      - name: solution
+        path: /solution
+    placement:
+      or:
+        - partition: cpu
+        - partition: gpu
+    resources:
+      cpu: 8
+      memory: 16G
+    commands:
+      - shell: apt update && apt install -y gcc
+      - shell: make -j8
+  - name: run
+    parallel:
+      - name: do-judge-1
+        image: problems/test_problem/test
+        volumes:
+          - name: solution
+            path: /solution
+        placement:
+          partition: cpu
+        resources:
+          cpu: 16
+          memory: 32G
+        commands:
+          - shell: do-judge.sh 1
+      - name: do-judge-2
+        image: problems/test_problem/test
+        volumes:
+          - name: solution
+            path: /solution
+        placement:
+          partition: cpu
+        resources:
+          cpu: 16
+          memory: 32G
+        commands:
+          - shell: do-judge.sh 2
+  - name: submit
+    image: paralab/submit
+    volumes:
+      - name: solution
+        path: /solution
+    vars: [PARALAB_CONTEXT]
+    commands:
+      - shell: paralab-submit.sh /solution/result.json
