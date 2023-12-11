@@ -1,22 +1,54 @@
 <script setup lang="ts">
 
 import { useRoute } from 'vue-router'
-import { ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import VueMarkdown from 'vue-markdown-render'
 import { onMounted } from 'vue';
 
 import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
-import type { User, Submission } from '@paralab/proto'
+import type { User, Problem, Submission, SubmissionVerdict, JudgeResult } from '@paralab/proto'
 import { ROLE_CONTEST_ADMIN, ROLE_PROBLEMSET_ADMIN } from '@paralab/proto';
 
 import SubmissionList from '@/components/SubmissionList.vue';
+import SubmissionResult from '@/components/SubmissionResult.vue';
 
 const route = useRoute()
 const submissionId = parseInt(route.params.submissionid as string);
 
 const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
-const submission = ref<Submission | null>(null)
+// const submission = ref<Submission | null>(null)
+let submission : Ref<Submission> = ref({
+	id: 0,
+	user: {
+		id: 1,
+		name: "楼上的爷爷",
+	} as User,
+	problem: {
+		id: 0,
+		name: "A",
+	} as Problem,
+	contest: null,
+	submitTime: 5e12,
+	verdict: "completed" as SubmissionVerdict,
+	score: 114510,
+	judgeResult: {
+		message : '{\
+			"score": 114510,\
+			"status" : "AC",\
+			"extra" : {\
+				"subtask1" : {\
+					"score" : 114000,\
+					"status" : "AC"\
+				},\
+				"subtask2" : {\
+					"score" : "510",\
+					"status" : "WA"\
+				}\
+			}\
+		}',
+	} as JudgeResult
+});
 
 function updateSubmission() {
 	fetchWithAuthInJson(`/api/submission/${submissionId}`, "GET", {}).then((res: Submission) => {
@@ -75,6 +107,8 @@ function onClickRejudge() {
 			<SubmissionList
 			:submissions="[submission]"
 			></SubmissionList>
+			<SubmissionResult
+			:result="submission.judgeResult"/>
 		</v-col>
 		<v-col>
 			<v-list>

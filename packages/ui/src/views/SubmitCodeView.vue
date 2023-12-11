@@ -17,7 +17,7 @@ const problem_name = ref('')
 const problem_description = ref('')
 const problem_acceptance = ref(0)
 
-const selected_file = ref<File[] | null>(null)
+const selected_file = ref<File[] | undefined>(undefined)
 
 onMounted(() => {
 	fetchWithAuthInJson(`/api/problem/${problemId}`, "GET", {}).then((res: Problem) => {
