@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Res, Req, ParseIntPipe, Query, UnauthorizedException, BadRequestException, ParseFilePipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Res, Req, ParseIntPipe, Query, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { UseInterceptors, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, UploadedFile } from '@nestjs/common';
 import { Length, IsNotEmpty, MinLength, IsBoolean, IsString, IsNumber } from 'class-validator';
 import { Request, Response } from 'express';
 import { ApiOperation, ApiProperty } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ProblemService } from './problem.service';
 import { ContestService } from '../contest/contest.service';
@@ -89,6 +91,34 @@ export class ProblemController {
       name: problem.problemName,
       ...problem,
     });
+  }
+
+  // POST /problem/:id: Modify a problem's files
+  // Here "files" is basically a .zip file, containing
+  // - The config (.yaml) file
+  // - The problem's assert files (i.e. files that is publicly available to the user)
+  // - Files that define how to judge submissions
+  @Post('/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  @Roles([ROLE_PROBLEMSET_ADMIN])
+  async modifyProblemFiles(
+    @Req() request: Request,
+    @Param('id', new ParseIntPipe()) problemId: number,
+    @UploadedFile(new ParseFilePipe({
+      validators: [
+        new MaxFileSizeValidator({ maxSize: env.MAX_PROBLEM_FILE_SIZE_BYTE }),
+        new FileTypeValidator({ fileType: 'application/zip' }),
+      ]
+    })) file: Express.Multer.File
+  ): Promise<{}> {
+    const problem: Problem = await this.problemService.getProblemById(problemId);
+    if (!problem) {
+      throw new BadRequestException('invalid problem id');
+    }
+
+    await this.problemService.modifyProblemFiles(problemId, file);
+
+    return {};
   }
 
   // DELETE /problem/:id: Delete a problem
