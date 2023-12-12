@@ -3,9 +3,12 @@ import { BadRequestException } from '@nestjs/common';
 
 import env from "src/envs";
 
-import { Contest, RoleMask, ContestListItem, ROLE_CONTEST_ADMIN } from '@paralab/proto'
-import { ContestEntity } from 'src/entity/contest';
+import { Contest, Ranklist, RoleMask, ContestListItem, ROLE_CONTEST_ADMIN } from '@paralab/proto'
 import { JudgeConfig, default_judge_config } from '@paralab/proto';
+import { ContestEntity } from 'src/entity/contest';
+import { ProblemEntity } from 'src/entity/problem';
+import { SubmissionEntity } from 'src/entity/submission';
+import { UserEntity } from 'src/entity/user';
 
 const MAX_CONTEST_DESCRIPTION_LENGTH: number = 256*1024; // 256 KB
 
@@ -56,6 +59,70 @@ export class ContestService {
     if (!result) {
       throw new BadRequestException('contest not found');
     }
+    return result;
+  }
+
+  async getContestRanklist(id: number): Promise<Ranklist> {
+    const contest = await this.getContestById(id);
+    // Get all problems in this context
+    const problems: ProblemEntity[] = await Promise.all(
+      contest.metadata.problems.map(problem => ProblemEntity.findOneBy({ id: problem.id }))
+    );
+    // Get all submissions in this contest
+    const submissions = await SubmissionEntity.find({
+      where: {
+        contest: contest
+      },
+      relations: ['user', 'problem']
+    });
+    // Iterate over all submissions and get the best score for every user x every problem
+    let user_score_map = {};  // user_id => {problem_id => best_score}
+    for (const submission of submissions) {
+      const problemId = submission.problem.id;
+      const playerId = submission.user.id;
+      const score = submission.score;
+      if (!user_score_map[playerId]) {
+        user_score_map[playerId] = {};
+      }
+      if (!user_score_map[playerId][problemId]) {
+        user_score_map[playerId][problemId] = 0;
+      }
+      user_score_map[playerId][problemId] = Math.max(
+        user_score_map[playerId][problemId],
+        score
+      );
+    }
+    let players: Ranklist['players'] = [];
+    for (const playerId_ in user_score_map) {
+      const playerId = parseInt(playerId_);
+      let player = {
+        userId: playerId,
+        username: await UserEntity.findOneBy({ id: playerId }).then(user => user.name),
+        score: 0,
+        details: []
+      };
+      for (const problemEntity of problems) {
+        if (!problemEntity) {
+          // This problem is not found
+          player.details.push({
+            points: undefined
+          });
+        } else {
+        const problemId = problemEntity.id;
+          const score = user_score_map[playerId][problemId];
+          if (score != undefined)
+            player.score += score;
+          player.details.push({
+            points: score
+          });
+        }
+      }
+      players.push(player);
+    }
+
+    const result: Ranklist = {
+      players: players
+    };
     return result;
   }
 

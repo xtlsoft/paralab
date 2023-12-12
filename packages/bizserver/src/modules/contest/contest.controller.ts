@@ -5,7 +5,7 @@ import { ApiOperation, ApiProperty } from '@nestjs/swagger';
 
 import { ContestService } from './contest.service';
 import { ProblemService } from '../problem/problem.service';
-import { Contest } from '@paralab/proto';
+import { Contest, Ranklist } from '@paralab/proto';
 import { Roles } from './../user/authorization.service';
 import { ROLE_USER, ROLE_CONTEST_ADMIN, ContestListItem, ContestWithProblemName } from '@paralab/proto';
 import { AccessToken } from '../user/user.service';
@@ -88,7 +88,7 @@ export class ContestController {
   }
 
   // GET /contest/:id: Get contest by id
-  @Get(':id')
+  @Get('/:id')
   @Roles([])
   async getContestById(
     @Req() request: Request,
@@ -122,7 +122,23 @@ export class ContestController {
     return result;
   }
 
-  // PUT /contest: Modify a contest
+  // GET /contest/:id/ranklist: Get contest ranklist
+  @Get('/:id/ranklist')
+  @Roles([])
+  async getContestRanklist(
+    @Req() request: Request,
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<Ranklist> {
+    const contest = await this.contestService.getContestById(id);
+    const user_roles = request['user_info'] ? (request['user_info'] as AccessToken).userRoles : 0;
+    if (!contest.isPublic && !(user_roles & ROLE_CONTEST_ADMIN)) {
+      throw new UnauthorizedException('the contest is not public');
+    }
+    const result = await this.contestService.getContestRanklist(id);
+    return result;
+  }
+
+  // PUT /contest/:id: Modify a contest
   // It accepts a contest object, and returns the modified contest object.
   // Only users marked with is_admin can call this API.
   @Put('/:id')

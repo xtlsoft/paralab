@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import type { Ranklist } from '@paralab/proto';
+import type { ContestWithProblemName, Ranklist } from '@paralab/proto';
 
 defineProps<{
-  ranklist : Ranklist
+  contest: ContestWithProblemName
+  ranklist: Ranklist
 }>()
 </script>
 
@@ -23,21 +24,20 @@ defineProps<{
           总分
         </th>
         <th 
-        v-for="item in ranklist.problems"
+        v-for="problem in contest.metadata.problems"
         class="text-center">
           <RouterLink
-          :to = "`${$route.path}/problem/${item.name}`">
-          {{ item.name  }}
+          :to = "`/contest/${contest.id}/problem/${problem.id}`">
+          {{ problem.name }}
           </RouterLink>
         </th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="item in ranklist.players"
-        :key="item.rank"
+        v-for="(item, index) in ranklist.players"
       >
-        <td class="text-center">{{ item.rank }}</td>
+        <td class="text-center">{{ index + 1 }}</td>
         <td class="text-center">
           <RouterLink 
           :to="`/user/${item.userId}`"

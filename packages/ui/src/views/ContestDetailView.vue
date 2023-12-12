@@ -19,24 +19,13 @@ const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
 let contest: Ref<ContestWithProblemName> = ref({
 	id: 0,
-	name: "See who learns from SYC better!",
+	name: "",
 	startTime: 4e12,
 	endTime: 6e12,
 	isPublic: true,
 	metadata: {
 		description: "",
-		problems: [
-			{
-				id: 0,
-				name: "A",
-				weight: 100,
-			},
-			{
-				id: 1,
-				name: "B",
-				weight: 100,
-			}
-		]
+		problems: []
 	}
 })
 
