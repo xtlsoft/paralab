@@ -51,7 +51,7 @@ defineProps<{
         <td 
         v-for="detail in item.details"
         class="text-center">
-            {{ detail.points }}
+            {{ detail.score }}
         </td>
       </tr>
     </tbody>

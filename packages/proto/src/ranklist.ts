@@ -4,7 +4,8 @@ export interface Ranklist {
         username: string
         score: number
         details: {
-            points : number
+            score: number,
+            submitTime: number  // Unix timestamp, in milliseconds
         }[] // The order of this array is the same as the order of problems in the contest
     }[]
 }
