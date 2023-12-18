@@ -8,7 +8,6 @@ import { onMounted } from 'vue';
 import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
 import type { User, Contest } from '@paralab/proto';
 import { ROLE_CONTEST_ADMIN } from '@paralab/proto';
-import { on } from 'events';
 
 const route = useRoute()
 const contestId = parseInt(route.params.contestid as string);
@@ -18,8 +17,8 @@ const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 let contest: Ref<Contest> = ref({
 	id: 0,
 	name: "",
-	startTime: new Date(),
-	endTime: new Date(),
+	startTime: 4e12,
+	endTime: 6e12,
 	isPublic: true,
 	metadata: {
 		description: "",
@@ -88,12 +87,15 @@ function onClickDeleteContest() {
 	}
 }
 
-function onClickSaveContest() {
-	contest.value.startTime = new Date(entered_startTime.value)
-	contest.value.endTime = new Date(entered_endTime.value)
+function onClickSaveContest(return_after_save: boolean) {
+	contest.value.startTime = (new Date(entered_startTime.value)).valueOf()
+	contest.value.endTime = (new Date(entered_endTime.value)).valueOf()
 	fetchWithAuthInJson(`/api/contest/${contestId}`, "PUT", contest.value
 	).then((res) => {
 		alert("保存成功")
+		if (return_after_save) {
+			window.location.href = `/contest/${contestId}`
+		}
 	}).catch((e) => {
 		console.log(e)
 		alert(`保存失败: ${e}`)
@@ -264,12 +266,18 @@ function onClickSaveContest() {
 				link 
 				prepend-icon="mdi-floppy"
 				title="保存"
-				@click="onClickSaveContest"
+				@click="onClickSaveContest(false)"
+				></v-list-item>
+				<v-list-item
+				link 
+				prepend-icon="mdi-floppy"
+				title="保存并返回"
+				@click="onClickSaveContest(true)"
 				></v-list-item>
 				<v-list-item
 				link 
 				prepend-icon="mdi-delete"
-				title="删除"
+				title="删除比赛"
 				@click="onClickDeleteContest"
 				></v-list-item>
 			</v-list>

@@ -40,8 +40,8 @@ export class ContestService {
   async createContest(): Promise<Contest> {
     const contest = new ContestEntity();
     contest.name = 'New Contest';
-    contest.startTime = new Date(4e12);
-    contest.endTime = new Date(4e12);
+    contest.startTime = 4e12; // in 2096
+    contest.endTime = 6e12;
     contest.metadata = {
       description: '',
       problems: []
@@ -60,6 +60,9 @@ export class ContestService {
   }
 
   async modifyContest(contest: Contest): Promise<Contest> {
+    if (contest.startTime > contest.endTime) {
+      throw new BadRequestException('startTime should not latter than endTime');
+    }
     const result = await ContestEntity.findOneBy({ id: contest.id });
     if (!result) {
       throw new BadRequestException('problem not found');

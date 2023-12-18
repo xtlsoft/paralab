@@ -4,17 +4,20 @@ import ProblemHeader from '@/components/ProblemHeader.vue';
 import { useRoute } from 'vue-router'
 import { ref, onMounted } from 'vue'
 
-import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
+import { fetchWithAuthInJson, fetchWithAuthInRaw, getLoggedInUserInfo } from '@/api/authorization';
 import type { User, Problem } from '@paralab/proto';
 
 const route = useRoute()
-const problemId = parseInt(route.params.problemid as string);
+const problemId: number = parseInt(route.params.problemid as string);
+const contestId: number | undefined = route.params.contestId ? parseInt(route.params.contestId as string) : undefined;
 
 const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
 const problem_name = ref('')
 const problem_description = ref('')
 const problem_acceptance = ref(0)
+
+const selected_file = ref<File[] | null>(null)
 
 onMounted(() => {
 	fetchWithAuthInJson(`/api/problem/${problemId}`, "GET", {}).then((res: Problem) => {
@@ -26,6 +29,30 @@ onMounted(() => {
 		alert(`获取题目描述失败: ${e}`)
 	})
 })
+
+function onClickSubmit() {
+    if (!selected_file || !selected_file.value || !selected_file.value.length) {
+        alert("请选择文件")
+        return
+    }
+    const formData = new FormData()
+    formData.append("file", selected_file.value[0])
+    formData.append("problemId", problemId.toString())
+    if (contestId) {
+        formData.append("contestId", contestId.toString())
+    }
+    fetchWithAuthInRaw(`/api/submission`, {
+        method: "POST",
+        body: formData
+    }).then(async (res) => {
+        const json = await res.json();
+        alert("提交成功")
+        const submissionId = json.submissionId;
+        window.location.href = `/submission/${submissionId}`
+    }).catch((e) => {
+        alert(`提交失败: ${e}`)
+    })
+}
 </script>
 
 <template>
@@ -37,14 +64,11 @@ onMounted(() => {
     <v-row>
         <v-col
         cols = "9" v-if="cur_logged_in_user !== undefined">
-            <!-- the coding area -->
-            <v-textarea
-            auto-grow
-            label="code"
+            <v-file-input
+            label="Select your file"
             variant="outlined"
-            autofocus>
-                code here
-            </v-textarea>
+            v-model:model-value="selected_file"
+            show-size></v-file-input>
         </v-col>
         <v-col cols="9" v-else>
             <v-alert
@@ -64,7 +88,8 @@ onMounted(() => {
                 <v-list-item 
                 link 
                 prepend-icon="mdi-send-variant"
-                title="提交"></v-list-item>
+                title="提交"
+                @click="onClickSubmit"></v-list-item>
             </v-list>
         </v-col>
 </v-row>

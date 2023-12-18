@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany } from 'typeorm';
 import { JudgeConfig } from '@paralab/proto/src/judgeConfig';
+
+import { SubmissionEntity } from './submission';
 
 @Entity()
 export class ProblemEntity extends BaseEntity {
@@ -20,4 +22,7 @@ export class ProblemEntity extends BaseEntity {
 		description: string
 		judgeConfig: JudgeConfig
 	}
+
+	@OneToMany(() => SubmissionEntity, (submission) => submission.problem)
+	submissions: SubmissionEntity[]
 }

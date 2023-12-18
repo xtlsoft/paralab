@@ -1,13 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Res, Req, ParseIntPipe, Query, UnauthorizedException } from '@nestjs/common';
-import { IsEmail, Length, IsNotEmpty, MinLength, IsBoolean, IsString, IsNumber } from 'class-validator';
+import { Controller, Get, Post, Put, Delete, Param, Body, Res, Req, ParseIntPipe, Query, UnauthorizedException, BadRequestException, ParseFilePipe } from '@nestjs/common';
+import { Length, IsNotEmpty, MinLength, IsBoolean, IsString, IsNumber } from 'class-validator';
 import { Request, Response } from 'express';
 import { ApiOperation, ApiProperty } from '@nestjs/swagger';
 
 import { ProblemService } from './problem.service';
-import { Problem } from '@paralab/proto';
+import { ContestService } from '../contest/contest.service';
+import { Contest, Problem, Submission } from '@paralab/proto';
 import { JudgeConfig, default_judge_config } from '@paralab/proto';
 import { Roles } from './../user/authorization.service';
-import { ROLE_USER, ROLE_PROBLEMSET_ADMIN, ProblemListItem } from '@paralab/proto';
+import { ROLE_USER, ROLE_PROBLEMSET_ADMIN, ROLE_CONTEST_ADMIN, ProblemListItem } from '@paralab/proto';
 import { AccessToken } from '../user/user.service';
 import env from "src/envs";
 
@@ -38,9 +39,11 @@ class ModifyProblemDTO {
   metadata: ProblemMetadataDTO
 }
 
+
 @Controller('/api/problem')
 export class ProblemController {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(private readonly problemService: ProblemService,
+              private readonly contestService: ContestService) {}
 
   // GET /problemlist: Get problem list
   // It accepts two arguments: startIndex and count, and return a list of
@@ -111,22 +114,5 @@ export class ProblemController {
       throw new UnauthorizedException('the problem is not public');
     }
     return problem;
-  }
-
-  // POST /problem/:id/submit: Submit a solution to a problem
-  @Get('/:id/submit')
-  @Roles([ROLE_USER])
-  async submitSolution(
-    @Req() request: Request,
-    @Param('id', new ParseIntPipe()) id: number,
-    @Body() solution: {language: string, code: string}
-  ): Promise<{}> {
-    const user_roles = request['user_info'] ? (request['user_info'] as AccessToken).userRoles : 0;
-    const problem = await this.problemService.getProblemById(id);
-    if (!problem.allowSubmitFromProblemList && !(user_roles & ROLE_PROBLEMSET_ADMIN)) {
-      throw new UnauthorizedException('the problem does not allow submit from problem list');
-    }
-    // await this.problemService.submitSolution(user_info.userId, id, solution.language, solution.code);
-    return {};
   }
 }

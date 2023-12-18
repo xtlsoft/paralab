@@ -20,8 +20,8 @@ const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 let contest: Ref<ContestWithProblemName> = ref({
 	id: 0,
 	name: "",
-	startTime: new Date(),
-	endTime: new Date(),
+	startTime: 4e12,
+	endTime: 6e12,
 	isPublic: true,
 	metadata: {
 		description: "",

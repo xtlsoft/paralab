@@ -36,13 +36,13 @@ class ModifyContestDTO {
   @ApiProperty()
   name: string
 
-  @IsString()
+  @IsNumber()
   @ApiProperty()
-  startTime: Date
+  startTime: number	// In UNIX timestamp, milliseconds
 
-  @IsString()
+  @IsNumber()
   @ApiProperty()
-  endTime: Date
+  endTime: number	// In UNIX timestamp, milliseconds
 
   @IsBoolean()
   @ApiProperty()

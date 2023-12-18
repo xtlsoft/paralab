@@ -43,6 +43,12 @@ function onClickLogout() {
 			prepend-icon="mdi-sword-cross">
 				比赛
 			</v-btn>
+			<v-btn
+			to="/submissionlist"
+			class="mr-4"
+			prepend-icon="mdi-server-outline">
+			评测记录
+			</v-btn>
 		</template>
 		<template #append>
 			<v-menu v-if="is_logged_in">
