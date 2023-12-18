@@ -1,0 +1,10 @@
+title: Test Problem
+entrance: main.star # entrance judge script
+assets: []
+attachments: []
+images: []
+artifacts: []
+solution_files:
+  solution:
+    type: editor
+    language: cpp
