@@ -1,23 +1,36 @@
 <script setup lang="ts">
-import user from '../user_data'
+import { useRoute } from 'vue-router'
+import type { User } from '@paralab/proto';
+
+import UserProfileCardAsync from '@/components/UserProfileCardAsync.vue';
+import type { Suspense } from 'vue';
+
+const route = useRoute()
+
+const userId = parseInt(route.params.userId as string);
 </script>
 
 <template>
+	<h1 style="margin-top: 2rem">用户信息</h1>
 	<v-row
 	style="margin-top: 1rem">
 		<v-col
 			align-self="center"
-			cols="3"
+			cols="4"
 		>
-		<v-card
-		:title="user.name"
-		:subtitle="`UID: ${user.uid}`"
-		>
-		<template #text>
+			<Suspense>
+				<UserProfileCardAsync
+					:userId="userId"
+					:display_privileges="true"
+				/>
+			</Suspense>
+			
 			<v-btn
-			text="edit"/>
-		</template>
-		</v-card>
+			style="margin-top: 1rem"
+			color="blue"
+			text="编辑"
+			:to="`/user/${userId}/edit`"
+			/>
 		</v-col>
 	</v-row>
 	

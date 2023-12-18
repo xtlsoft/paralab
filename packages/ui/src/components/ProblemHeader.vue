@@ -1,12 +1,19 @@
 <script setup lang="ts">
 
-import problems from '../problem_data'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-const pdata = problems.find ( 
-    (item) => item.id === parseInt(route.params.problemid as string) 
-)!;
+const props = defineProps({
+    problemId: {
+        type: Number,
+        required: true
+    },
+	problemName: {
+        type: String,
+        required: true
+    },
+	problemAcceptance: {
+        type: Number,
+        required: true
+    },
+})
 
 </script>
 
@@ -18,8 +25,8 @@ const pdata = problems.find (
         cols="9"
         >
             <h1>
-                #{{ pdata.id }}
-                {{ pdata.name }}
+                #{{ problemId }}
+                {{ problemName }}
             </h1>
         </v-col>
         <v-col 
@@ -29,8 +36,8 @@ const pdata = problems.find (
                 <div style="text-align: center">
                     通过率
                 </div>
-                <div style="text-align: center">
-                    {{ pdata.acceptance }}%
+                <div style="text-align: center; font-size: x-large;">
+                    {{ problemAcceptance*100 }}%
                 </div>
             </v-card>
         </v-col>

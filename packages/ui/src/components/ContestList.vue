@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import type { ProblemListItem } from '@paralab/proto';
+import type { ContestListItem } from '@paralab/proto';
 
 defineProps({
-  problems: Array<ProblemListItem>
+  contests: Array<ContestListItem>
 })
 </script>
 
@@ -15,21 +15,24 @@ defineProps({
           #
         </th>
         <th class="text-center">
-          题目名称
+          比赛
         </th>
         <th class="text-center">
-          通过率
+          开始时间
+        </th>
+        <th class="text-center">
+          结束时间
         </th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="item in problems"
+        v-for="item in contests"
         :key="item.id"
       >
         <td class="text-center">{{ item.id }}</td>
         <td>
-          <RouterLink :to="`/problem/${item.id}`">
+          <RouterLink :to="`/contest/${item.id}`">
           {{ item.name }}
           </RouterLink>
           <v-chip
@@ -40,17 +43,9 @@ defineProps({
           >
             非公开
           </v-chip>
-          <v-chip
-          v-if="!item.allowSubmitFromProblemList"
-          color="red"
-          text-color="white"
-          size="small"
-          class="ml-4"
-          >
-            不可从题目列表提交
-          </v-chip>
         </td>
-        <td class="text-center">{{ 0 }}%</td>
+        <td class="text-center">{{ (new Date(item.startTime)).toLocaleString() }}</td>
+        <td class="text-center">{{ (new Date(item.endTime)).toLocaleString() }}</td>
       </tr>
     </tbody>
   </v-table>

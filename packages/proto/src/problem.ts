@@ -20,3 +20,11 @@ export interface Problem {
 		judgeConfig: JudgeConfig
 	},
 }
+
+// ProblemListItem: a simplified version of Problem, used in problem list
+export interface ProblemListItem {
+	id: number
+	name: string
+	isPublic: boolean
+	allowSubmitFromProblemList: boolean
+}

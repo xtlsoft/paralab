@@ -48,11 +48,6 @@ const test2 = async () => {
         <ProblemSearch />
       </v-card>
     </v-col>
-
-    <v-col>
-      <v-btn @click="test1">test1</v-btn>
-      <v-btn @click="test2">test2</v-btn>
-    </v-col>
   </v-row>
 
 </template>

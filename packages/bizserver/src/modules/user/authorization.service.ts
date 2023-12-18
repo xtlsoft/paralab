@@ -20,16 +20,32 @@ export class RolesGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Get required roles
     const requiredRoles = this.reflector.get(Roles, context.getHandler());
-    if (!requiredRoles) {
-      // If no roles required, then we allow the request
-      return true;
-    }
-    // Otherwise we first retrieve the JWT token
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    if (!requiredRoles || requiredRoles.length === 0) {
+      // If no roles required, then we allow the request
+      // We'll do our best to analyse the access token and store user_info,
+      // but if we fail, we'll just ignore it
+      if (!token) {
+        return true;
+      }
+      try {
+        const payload = jwt.verify(token, env.JWT_SECRET) as AccessToken;
+        if (!payload || !payload.userName || !payload.userId || !payload.userRoles) {
+          return true;
+        }
+        // Store the payload (user_info) to the request object so we can use
+        // it inside the controller
+        request['user_info'] = payload;
+      } catch {
+        return true;
+      }
+      return true;
+    }
     if (!token) {
       throw new UnauthorizedException();
     }
+    // Otherwise we first retrieve the JWT token
     // Now we have the token. We verify it and get the payload
     try {
       const payload = jwt.verify(token, env.JWT_SECRET) as AccessToken;
@@ -39,9 +55,12 @@ export class RolesGuard implements CanActivate {
       // Check whether the user has required privilege
       for (const role of requiredRoles) {
         if (!(payload.userRoles & role)) {
-          return false;
+          throw new UnauthorizedException();
         }
       }
+      // Store the payload (user_info) to the request object so we can use
+      // it inside the controller
+      request['user_info'] = payload;
     } catch {
       throw new UnauthorizedException();
     }
