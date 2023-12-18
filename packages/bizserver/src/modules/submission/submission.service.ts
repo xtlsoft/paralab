@@ -101,7 +101,7 @@ export class SubmissionService {
         solution: {
           solution: `submission-${submission.id}` // This is the object name in OSS
         },
-        submitted_at: (new Date(submission.submitTime)).toISOString(),
+        submitted_at: (new Date(submission.submitTime)).getTime(),
         priority: 0
       }
     });

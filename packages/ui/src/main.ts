@@ -12,9 +12,16 @@ import * as directives from 'vuetify/directives'
 
 import '@mdi/font/css/materialdesignicons.css'
 
+import { useDark } from '@vueuse/core'
+
+const isDark = useDark()
+
 const vuetify = createVuetify({
   components,
   directives,
+  theme: {
+    defaultTheme: isDark.value ? 'dark' : 'light'
+  }
 })
 
 const app = createApp(App);

@@ -1,16 +1,11 @@
 export interface Ranklist {
-    contestId: number
-    problems: {
-        name: string
-    }
     players: {
         userId: number
         username: string
         score: number
-        rank: number
         details: {
-            points : number
-            status : string
-        }[]
+            score: number,
+            submitTime: number  // Unix timestamp, in milliseconds
+        }[] // The order of this array is the same as the order of problems in the contest
     }[]
 }

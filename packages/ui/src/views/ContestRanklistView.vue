@@ -2,15 +2,12 @@
 
 import { useRoute } from 'vue-router'
 import { type Ref, ref, reactive } from 'vue'
-import VueMarkdown from 'vue-markdown-render'
 import { onMounted } from 'vue';
 
 import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
 import type { User, ContestWithProblemName, Ranklist } from '@paralab/proto';
-import { ROLE_CONTEST_ADMIN } from '@paralab/proto';
 
 import CountDownTimer from '@/components/CountDownTimer.vue'
-import ContestProblemList from '@/components/ContestProblemList.vue';
 import RanklistTable from '@/components/RanklistTable.vue';
 
 const route = useRoute()
@@ -20,81 +17,31 @@ const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
 let contest: Ref<ContestWithProblemName> = ref({
 	id: 0,
-	name: "See who learns from SYC better!",
+	name: "",
 	startTime: 4e12,
 	endTime: 6e12,
 	isPublic: true,
 	metadata: {
-		description: "看看谁软工学的好！",
+		description: "",
 		problems: []
 	}
 })
 
 let ranklist: Ref<Ranklist> = ref({
-	contestId: 0,
-	problems: [
-		{
-			name: "A",
-		},
-		{
-			name: "B",
-		}
-	],
-	players: [
-		{
-			userId: 0,
-			username: "楼下的爸爸",
-			score: 1919810,
-			rank: 1,
-			details : [
-				{
-					points : 1919800,
-					status : "AC",
-				},
-				{
-					points : 10,
-					status : "WA",
-				}
-			]
-		},
-		{
-			userId: 1,
-			username: "楼上的爷爷",
-			score: 114514,
-			rank: 2,
-			details : [
-				{
-					points : 4,
-					status : "WA",
-				},
-				{
-					points : 114510,
-					status : "AC",
-				}
-			]
-		},
-		{
-			userId: 2,
-			username: "第一的父亲",
-			score: 233,
-			rank: 3,
-			details : [
-				{
-					points : 0,
-					status : "N/A",
-				},
-				{
-					points : 233,
-					status : "AC",
-				}
-			]
-		}
-	]
+	players: []
 })
 
 onMounted(() => {
 	fetchWithAuthInJson(`/api/contest/${contestId}`, "GET", {}).then((res: ContestWithProblemName) => {
 		contest.value = res;
+
+		fetchWithAuthInJson(`/api/contest/${contestId}/ranklist`, "GET", {}).then((res: Ranklist) => {
+			ranklist.value = res;
+			console.log(res)
+		}).catch((e) => {
+			console.log(e)
+			alert(`获取排名失败: ${e}`)
+		})
 	}).catch((e) => {
 		console.log(e)
 		alert(`获取题目描述失败: ${e}`)
@@ -131,6 +78,7 @@ onMounted(() => {
 		cols = "9">
 			<v-row>
 				<RanklistTable
+				:contest="contest"
 				:ranklist="ranklist"/>
 			</v-row>
 		</v-col>

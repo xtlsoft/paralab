@@ -22,7 +22,7 @@ export class SubmissionEntity extends BaseEntity {
 	submitTime: number	// In UNIX timestamp, milliseconds
 
 	@Column("enum", { enum: submission_verdicts })
-	verdict:SubmissionVerdict
+	verdict: SubmissionVerdict
 
 	@Column("float4")
 	score: number
