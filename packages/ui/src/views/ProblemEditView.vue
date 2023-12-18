@@ -6,7 +6,7 @@ import { ref } from 'vue'
 import VueMarkdown from 'vue-markdown-render'
 import { onMounted } from 'vue';
 
-import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
+import { fetchWithAuthInJson, getLoggedInUserInfo, fetchWithAuthInRaw } from '@/api/authorization';
 import type { User, Problem, JudgeConfig } from '@paralab/proto';
 import { default_judge_config, ROLE_PROBLEMSET_ADMIN } from '@paralab/proto';
 import { on } from 'events';
@@ -69,6 +69,26 @@ function onClickSaveProblem(return_after_save: boolean) {
 	})
 }
 
+const selected_file = ref<File[] | undefined>(undefined)
+
+function onClickSubmit() {
+    if (!selected_file || !selected_file.value || !selected_file.value.length) {
+        alert("请选择文件")
+        return
+    }
+    const formData = new FormData()
+    formData.append("file", selected_file.value[0])
+    formData.append("problemId", problemId.toString())
+    fetchWithAuthInRaw(`/api/problem/${problemId}`, {
+        method: "POST",
+        body: formData
+    }).then(async (res) => {
+        const json = await res.json();
+        alert("提交成功")
+    }).catch((e) => {
+        alert(`提交失败: ${e}`)
+    })
+}
 </script>
 
 <template>
@@ -156,6 +176,37 @@ function onClickSaveProblem(return_after_save: boolean) {
 				@click="onClickDeleteProblem"
 				></v-list-item>
 			</v-list>
+		</v-col>
+	</v-row>
+
+    <v-row><v-divider></v-divider></v-row>
+	
+	<v-row
+    style="margin-top: 1rem">
+        <v-col 
+        align-self="center"
+        cols="9"
+        >
+            <h1>
+                题目文件管理
+            </h1>
+        </v-col>
+    </v-row>  
+
+	<v-row>
+		<v-col cols="10">
+			<v-file-input
+				label="Select your file"
+				variant="outlined"
+				v-model:model-value="selected_file"
+				show-size></v-file-input>
+		</v-col>
+		<v-col cols="2" align-self="baseline">
+			<v-btn
+			color="green"
+			@click="onClickSubmit"
+			block
+			>提交</v-btn>
 		</v-col>
 	</v-row>
 </template>

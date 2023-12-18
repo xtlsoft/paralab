@@ -96,6 +96,11 @@ function onClickDeleteContest() {
 				title="提交记录"></v-list-item>
 				<v-list-item 
 				link 
+				prepend-icon="mdi-format-list-numbered"
+				:to="`/contest/${ contestId }/ranklist`"
+				title="排行榜"></v-list-item>
+				<v-list-item 
+				link 
 				prepend-icon="mdi-sort-ascending"
 				title="统计"></v-list-item>
 				<div v-if="cur_logged_in_user && (cur_logged_in_user.roleMask & ROLE_CONTEST_ADMIN)">

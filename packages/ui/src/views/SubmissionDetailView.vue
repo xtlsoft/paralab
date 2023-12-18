@@ -1,27 +1,67 @@
 <script setup lang="ts">
 
 import { useRoute } from 'vue-router'
-import { ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import VueMarkdown from 'vue-markdown-render'
 import { onMounted } from 'vue';
 
 import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
-import type { User, Submission } from '@paralab/proto'
+import type { User, Problem, Submission, SubmissionVerdict, JudgeResult } from '@paralab/proto'
 import { ROLE_CONTEST_ADMIN, ROLE_PROBLEMSET_ADMIN } from '@paralab/proto';
+
+import SubmissionList from '@/components/SubmissionList.vue';
+import SubmissionResult from '@/components/SubmissionResult.vue';
 
 const route = useRoute()
 const submissionId = parseInt(route.params.submissionid as string);
 
 const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
-const submission = ref<Submission | null>(null)
-onMounted(() => {
+// const submission = ref<Submission | null>(null)
+let submission : Ref<Submission> = ref({
+	id: 0,
+	user: {
+		id: 1,
+		name: "楼上的爷爷",
+	} as User,
+	problem: {
+		id: 0,
+		name: "A",
+	} as Problem,
+	contest: null,
+	submitTime: 5e12,
+	verdict: "completed" as SubmissionVerdict,
+	score: 114510,
+	judgeResult: {
+		message : '{\
+			"score": 114510,\
+			"status" : "AC",\
+			"extra" : {\
+				"subtask1" : {\
+					"score" : 114000,\
+					"status" : "AC"\
+				},\
+				"subtask2" : {\
+					"score" : "510",\
+					"status" : "WA"\
+				}\
+			}\
+		}',
+	} as JudgeResult
+});
+
+function updateSubmission() {
 	fetchWithAuthInJson(`/api/submission/${submissionId}`, "GET", {}).then((res: Submission) => {
 		submission.value = res
 	}).catch((e) => {
 		console.log(e)
 		alert(`获取题目描述失败: ${e}`)
 	})
+}
+
+onMounted(() => {
+	updateSubmission();
+	setInterval(updateSubmission, 1000);
 })
 
 function onClickDeleteSubmission() {
@@ -37,11 +77,12 @@ function onClickDeleteSubmission() {
 }
 
 function onClickRejudge() {
-	alert("Not implemented yet")
-}
-
-function onClickDownloadButton() {
-	alert("Not implemented yet")
+	fetchWithAuthInJson(`/api/submission/${submissionId}`, "PUT", {}).then((res) => {
+		alert("已加入评测队列")
+	}).catch((e) => {
+		console.log(e)
+		alert(`加入评测队列失败: ${e}`)
+	});
 }
 
 </script>
@@ -63,53 +104,11 @@ function onClickDownloadButton() {
 	<v-row v-if="submission">
 		<v-col
 		cols = "9">
-			<v-table>
-				<thead>
-					<tr>
-						<th class="text-center">ID</th>
-						<th class="text-center">提交者</th>
-						<th class="text-center">题目</th>
-						<th class="text-center">提交时间</th>
-						<th class="text-center">状态</th>
-						<th class="text-center">得分</th>
-						<th class="text-center"></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td class="text-center">
-							#{{ submission.id }}
-						</td>
-						<td class="text-center">
-							<router-link :to="`/user/${ submission.user.id }`">
-								#{{ submission.user.id }}. {{ submission.user.name }}
-							</router-link>
-						</td>
-						<td class="text-center">
-							<router-link :to="`/problem/${ submission.problem.id }`">
-								#{{ submission.problem.id }}. {{ submission.problem.name }}
-							</router-link>
-						</td>
-						<td class="text-center">
-							{{ (new Date(submission.submitTime)).toLocaleString() }}
-						</td>
-						<td class="text-center">
-							{{ submission.verdict }}
-						</td>
-						<td class="text-center">
-							{{ submission.score }}
-						</td>
-						<td>
-							<v-btn
-							@click="onClickDownloadButton"
-							color="green"
-          					size="small">
-								下载
-							</v-btn>
-						</td>
-					</tr>
-				</tbody>
-			</v-table>
+			<SubmissionList
+			:submissions="[submission]"
+			></SubmissionList>
+			<SubmissionResult
+			:result="submission.judgeResult"/>
 		</v-col>
 		<v-col>
 			<v-list>

@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import type { ContestProblemListItem } from '@paralab/proto';
+import type { ContestWithProblemName } from '@paralab/proto';
 
-defineProps({
-  problems: Array<ContestProblemListItem>
-})
+// Extract type of problems field
+type ContestProblemList =
+  Extract<
+    Extract< 
+      ContestWithProblemName, 
+      {metadata?:any}
+    > ['metadata'],
+    {problems?:any}
+  > ['problems'];
+
+defineProps<{
+  problems : ContestProblemList
+}>()
 </script>
 
 <template>
@@ -30,7 +40,7 @@ defineProps({
         :key="item.id"
       >
         <td class="text-center">{{ item.id }}</td>
-        <td>
+        <td class="text-center">
           <RouterLink :to="`${$route.path}/problem/${item.id}`">
           {{ item.name }}
           </RouterLink>

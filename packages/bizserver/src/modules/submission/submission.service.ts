@@ -4,7 +4,7 @@ import { BadRequestException } from "@nestjs/common";
 import { SubmissionEntity } from 'src/entity/submission';
 import { minioClient, getBucketName } from 'src/minio';
 
-import { RoleMask, Submission, ProblemListItem, ROLE_PROBLEMSET_ADMIN, ROLE_CONTEST_ADMIN, ContestListItem } from "@paralab/proto";
+import { RoleMask, Submission, ProblemListItem, ROLE_PROBLEMSET_ADMIN, ROLE_CONTEST_ADMIN, ContestListItem, Job, SubmissionVerdict } from "@paralab/proto";
 import { JudgeResult, default_judge_result } from '@paralab/proto';
 import { ProblemEntity } from "src/entity/problem";
 import { ContestEntity } from "src/entity/contest";
@@ -23,7 +23,7 @@ export class SubmissionService {
     .leftJoinAndSelect('submission.user', 'user')
     .leftJoinAndSelect('submission.problem', 'problem')
     .leftJoinAndSelect('submission.contest', 'contest')
-    .orderBy('submission.id', 'ASC');
+    .orderBy('submission.id', 'DESC');
     // PROBLEMSET_ADMINs and CONTEST_ADMIN can see all submissions regardless of their visibility
     if (!(userRoles & ROLE_PROBLEMSET_ADMIN) && !(userRoles & ROLE_CONTEST_ADMIN)) {
       query_builder = query_builder.where('submission.user = :userId', { userId: userId ? userId : -1 })
@@ -70,5 +70,49 @@ export class SubmissionService {
       throw new BadRequestException('problem not found');
     }
     return result;
+  }
+
+  async rejudge(submissionId: number): Promise<void> {
+    await SubmissionEntity.update({ id: submissionId }, {
+      verdict: 'waiting',
+      score: 0,
+      judgeResult: default_judge_result
+    });
+  }
+
+  async deleteSubmission(submissionId: number): Promise<void> {
+    await SubmissionEntity.delete({ id: submissionId });
+  }
+
+  // Get jobs (for ParaCI)
+  async getJobs(jobs_limit: number): Promise<Job[]> {
+    let query_builder = SubmissionEntity.createQueryBuilder('submission')
+      .leftJoinAndSelect('submission.user', 'user')
+      .leftJoinAndSelect('submission.problem', 'problem')
+      .orderBy('submission.id', 'ASC')
+      .where('submission.verdict = :verdict', { verdict: 'waiting' })
+      .limit(jobs_limit);
+    const submissions: Submission[] = await query_builder.getMany();
+    return submissions.map((submission) => {
+      return {
+        id: submission.id,
+        user_id: submission.user.id,
+        problem_id: submission.problem.id,
+        solution: {
+          solution: `submission-${submission.id}` // This is the object name in OSS
+        },
+        submitted_at: (new Date(submission.submitTime)).getTime(),
+        priority: 0
+      }
+    });
+  }
+
+  // Update job status (for ParaCI)
+  async updateJobStatus(id: number, verdict: SubmissionVerdict, score: number, result: JudgeResult): Promise<void> {
+    await SubmissionEntity.update({ id: id }, {
+      verdict: verdict,
+      score: score,
+      judgeResult: result
+    });
   }
 }

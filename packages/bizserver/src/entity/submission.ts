@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToOne } from 'typeorm';
-import { JudgeResult } from '@paralab/proto';
+import { JudgeResult, SubmissionVerdict, submission_verdicts } from '@paralab/proto';
 import { ProblemEntity } from './problem';
 import { ContestEntity } from './contest';
 import { UserEntity } from './user';
@@ -21,8 +21,8 @@ export class SubmissionEntity extends BaseEntity {
 	@Column("bigint")
 	submitTime: number	// In UNIX timestamp, milliseconds
 
-	@Column("enum", { enum: ["waiting", "running", "completed"] })
-	verdict: "waiting" | "running" | "completed"
+	@Column("enum", { enum: submission_verdicts })
+	verdict: SubmissionVerdict
 
 	@Column("float4")
 	score: number

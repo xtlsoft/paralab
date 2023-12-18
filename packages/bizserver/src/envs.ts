@@ -6,6 +6,7 @@ interface Env {
   LISTEN_PORT: number;
 
   MAX_SUBMIT_FILE_SIZE_BYTE: number;
+  MAX_PROBLEM_FILE_SIZE_BYTE: number;
 
   POSTGRES_HOST: string;
   POSTGRES_PORT: number;
@@ -45,6 +46,7 @@ const env: Env = {
   LISTEN_PORT: parseInt(getEnv('LISTEN_PORT')),
 
   MAX_SUBMIT_FILE_SIZE_BYTE: parseInt(getEnv('MAX_SUBMIT_FILE_SIZE_BYTE')),
+  MAX_PROBLEM_FILE_SIZE_BYTE: parseInt(getEnv('MAX_PROBLEM_FILE_SIZE_BYTE')),
   
   POSTGRES_HOST: getEnv('POSTGRES_HOST'),
   POSTGRES_PORT: parseInt(getEnv('POSTGRES_PORT')),
