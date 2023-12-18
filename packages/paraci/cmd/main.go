@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/lcpu-club/paralab/packages/paraci/agent"
 	"github.com/lcpu-club/paralab/packages/paraci/version"
 	"github.com/urfave/cli/v2"
 )
@@ -26,16 +25,9 @@ func main() {
 			Name:  "agent",
 			Usage: "Run paraci agent",
 			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:    "ID",
-					Aliases: []string{"i"},
-					Usage:   "Agent ID",
-					Value:   "DETECTHOSTNAME",
-				},
+				&cli.StringFlag{},
 			},
 			Action: func(ctx *cli.Context) error {
-				agent := agent.NewAgent(ctx.String("ID"))
-				agent.Listen()
 				return nil
 			},
 		},
