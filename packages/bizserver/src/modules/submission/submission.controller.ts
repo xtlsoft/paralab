@@ -1,12 +1,12 @@
 import { ApiOperation, ApiProperty } from '@nestjs/swagger';
-import { Length, IsNotEmpty, MinLength, IsBoolean, IsString, IsNumber } from 'class-validator';
+import { Length, IsNotEmpty, MinLength, IsBoolean, IsString, IsNumber, IsEnum } from 'class-validator';
 import { Controller, Get, Post, Put, Delete, Param, Body, Res, Req, ParseIntPipe, Query, UnauthorizedException, BadRequestException, ParseFilePipe } from '@nestjs/common';
 import { UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
 
-import { ROLE_USER, ROLE_PROBLEMSET_ADMIN, ROLE_CONTEST_ADMIN, ProblemListItem } from '@paralab/proto';
-import { Contest, Problem, Submission } from '@paralab/proto';
+import { ROLE_USER, ROLE_PROBLEMSET_ADMIN, ROLE_CONTEST_ADMIN, ProblemListItem, JudgeResult, SubmissionVerdict, submission_verdicts } from '@paralab/proto';
+import { Contest, Problem, Submission, Job } from '@paralab/proto';
 import env from "src/envs";
 
 import { SubmissionService } from './submission.service'
@@ -15,6 +15,19 @@ import { ContestService } from '../contest/contest.service';
 import { AccessToken } from '../user/user.service';
 import { Roles } from './../user/authorization.service';
 import { Subscribable } from 'rxjs';
+
+class ModifyJobStatusDTO {
+  @IsNumber()
+  @ApiProperty()
+  id: number
+
+  @IsString()
+  @ApiProperty()
+  verdict: SubmissionVerdict
+
+  @ApiProperty()
+  result: any
+}
 
 @Controller('/api/submission')
 export class SubmissionController {
@@ -85,6 +98,33 @@ export class SubmissionController {
     };
   }
 
+  // GET /submission/jobs: Get the submission jobs (called by ParaCI)
+  @Get('/jobs')
+  @ApiOperation({ summary: 'Get the submission jobs (called by ParaCI)' })
+  async getSubmissionJobs(
+    @Req() request: Request,
+    @Query("limit", new ParseIntPipe()) limit: number,
+  ): Promise<Job[]> {
+    // TODO Add permission checking here!
+    const result: Job[] = await this.submissionService.getJobs(limit);
+    return result;
+  }
+  
+  // PUT /submission/jobs: Update job status
+  @Put('/jobs')
+  @ApiOperation({ summary: 'Update job status' })
+  async updateJobStatus(
+    @Req() request: Request,
+    @Body() payload: ModifyJobStatusDTO
+  ): Promise<{}> {
+    // TODO Add permission checking here!
+    if (!submission_verdicts.includes(payload.verdict)) {
+      throw new BadRequestException(`Invalid verdict. Valid verdicts are: [${submission_verdicts.join(', ')}]`);
+    }
+    await this.submissionService.updateJobStatus(payload.id, payload.verdict, payload.result.score, payload.result);
+    return {};
+  }
+
   // GET /submission/:submissionId: Get submission info
   // Note about permission checking: Submissions from problemset (public problems) are public to
   // everyone while submission from contests are private to the submitter
@@ -124,5 +164,29 @@ export class SubmissionController {
     }
 
     return submission;
+  }
+
+  // PUT /submission/:submissionId: Rejudge
+  @Put('/:id')
+  @ApiOperation({ summary: 'Rejudge' })
+  @Roles([ROLE_PROBLEMSET_ADMIN | ROLE_CONTEST_ADMIN])
+  async rejudge(
+    @Req() request: Request,
+    @Param('id', new ParseIntPipe()) submissionId: number
+  ): Promise<{}> {
+    await this.submissionService.rejudge(submissionId);
+    return {};
+  }
+
+  // DELETE /submission/:submissionId: Delete a submission
+  @Delete('/:id')
+  @ApiOperation({ summary: 'Delete a submission' })
+  @Roles([ROLE_PROBLEMSET_ADMIN | ROLE_CONTEST_ADMIN])
+  async deleteSubmission(
+    @Req() request: Request,
+    @Param('id', new ParseIntPipe()) submissionId: number
+  ): Promise<{}> {
+    await this.submissionService.deleteSubmission(submissionId);
+    return {};
   }
 }

@@ -6,11 +6,12 @@ import VueMarkdown from 'vue-markdown-render'
 import { onMounted } from 'vue';
 
 import { fetchWithAuthInJson, getLoggedInUserInfo } from '@/api/authorization';
-import type { User, Contest, ContestWithProblemName } from '@paralab/proto';
+import type { User, ContestWithProblemName, Ranklist } from '@paralab/proto';
 import { ROLE_CONTEST_ADMIN } from '@paralab/proto';
 
 import CountDownTimer from '@/components/CountDownTimer.vue'
 import ContestProblemList from '@/components/ContestProblemList.vue';
+import RanklistTable from '@/components/RanklistTable.vue';
 
 const route = useRoute()
 const contestId = parseInt(route.params.contestid as string);
@@ -24,20 +25,71 @@ let contest: Ref<ContestWithProblemName> = ref({
 	endTime: 6e12,
 	isPublic: true,
 	metadata: {
-		description: "",
-		problems: [
-			{
-				id: 0,
-				name: "A",
-				weight: 100,
-			},
-			{
-				id: 1,
-				name: "B",
-				weight: 100,
-			}
-		]
+		description: "看看谁软工学的好！",
+		problems: []
 	}
+})
+
+let ranklist: Ref<Ranklist> = ref({
+	contestId: 0,
+	problems: [
+		{
+			name: "A",
+		},
+		{
+			name: "B",
+		}
+	],
+	players: [
+		{
+			userId: 0,
+			username: "楼下的爸爸",
+			score: 1919810,
+			rank: 1,
+			details : [
+				{
+					points : 1919800,
+					status : "AC",
+				},
+				{
+					points : 10,
+					status : "WA",
+				}
+			]
+		},
+		{
+			userId: 1,
+			username: "楼上的爷爷",
+			score: 114514,
+			rank: 2,
+			details : [
+				{
+					points : 4,
+					status : "WA",
+				},
+				{
+					points : 114510,
+					status : "AC",
+				}
+			]
+		},
+		{
+			userId: 2,
+			username: "第一的父亲",
+			score: 233,
+			rank: 3,
+			details : [
+				{
+					points : 0,
+					status : "N/A",
+				},
+				{
+					points : 233,
+					status : "AC",
+				}
+			]
+		}
+	]
 })
 
 onMounted(() => {
@@ -49,17 +101,6 @@ onMounted(() => {
 	})
 })
 
-function onClickDeleteContest() {
-	if (confirm("确定要删除这场比赛吗？")) {
-		fetchWithAuthInJson(`/api/contest/${contestId}`, "DELETE", {}).then((res) => {
-			alert("删除成功")
-			window.location.href = "/contestlist"
-		}).catch((e) => {
-			console.log(e)
-			alert(`删除失败: ${e}`)
-		});
-	}
-}
 </script>
 
 <template>
@@ -79,56 +120,33 @@ function onClickDeleteContest() {
 				:end-time="contest.endTime"/>
 		</v-col>
 	</v-row>
+
 	<v-row>
 		<v-divider></v-divider>
 	</v-row>
+
 	<v-row> 
+		<!-- ranklist -->
 		<v-col
 		cols = "9">
-			<v-row
-			class="pa-3">
-				<VueMarkdown
-				:source="contest.metadata.description"/>
-			</v-row>
 			<v-row>
-				<v-divider></v-divider>
-			</v-row>
-			<v-row>
-				<ContestProblemList
-				:problems="contest.metadata.problems"/>
+				<RanklistTable
+				:ranklist="ranklist"/>
 			</v-row>
 		</v-col>
+
 		<v-divider vertical class="ml-4 mr-4"></v-divider>
+
+		<!-- small toolbar -->
 		<v-col>
 			<v-list>
 				<v-list-item 
-				link 
-				prepend-icon="mdi-format-list-bulleted"
-				title="提交记录"></v-list-item>
-				<v-list-item 
-				link 
-				prepend-icon="mdi-format-list-numbered"
-				:to="`/contest/${ contestId }/ranklist`"
-				title="排行榜"></v-list-item>
-				<v-list-item 
-				link 
-				prepend-icon="mdi-sort-ascending"
-				title="统计"></v-list-item>
-				<div v-if="cur_logged_in_user && (cur_logged_in_user.roleMask & ROLE_CONTEST_ADMIN)">
-					<v-divider class="mt-2 mb-2" thickness="2"></v-divider>
-					<v-list-item
-					link 
-					prepend-icon="mdi-pencil"
-					title="编辑"
-					:to="`/contest/${ contestId }/edit`"
-					></v-list-item>
-					<v-list-item
-					link 
-					prepend-icon="mdi-delete"
-					title="删除"
-					@click="onClickDeleteContest"
-					></v-list-item>
-				</div>
+                :to="`/contest/${ contestId }`"                
+				prepend-icon="mdi-arrow-left"
+				title="转到比赛"></v-list-item>
+				<v-list-item            
+				prepend-icon="mdi-refresh"
+				title="刷新"></v-list-item>
 			</v-list>
 		</v-col>
 	</v-row>

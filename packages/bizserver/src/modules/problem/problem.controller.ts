@@ -13,7 +13,7 @@ import { AccessToken } from '../user/user.service';
 import env from "src/envs";
 
 class ProblemMetadataDTO {
-  @IsNumber()
+  @IsString()
   @ApiProperty()
   description: string
 

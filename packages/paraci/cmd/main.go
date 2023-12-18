@@ -1,19 +1,18 @@
-// The Agent runs a container following the instructions of a Paracifile
-// and reports the results back to the Paraci server.
+// Command paraci provides a brand-new CI service for highly parallel scenarios
 package main
 
 import (
 	"log"
 	"os"
 
-	"github.com/lcpu-club/paralab/packages/paraci/common/version"
+	"github.com/lcpu-club/paralab/packages/paraci/version"
 	"github.com/urfave/cli/v2"
 )
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "paraci-agent"
-	app.Usage = "Paraci Agent is a container runner for Paraci"
+	app.Name = "paraci"
+	app.Usage = "A brand-new CI service for highly parallel scenarios"
 	app.Version = version.Version
 	app.Authors = []*cli.Author{}
 	for _, author := range version.Authors {

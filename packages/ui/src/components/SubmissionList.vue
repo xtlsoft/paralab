@@ -19,6 +19,7 @@ function onClickDownloadButton(submission_id: number) {
         <th class="text-center">ID</th>
         <th class="text-center">提交者</th>
         <th class="text-center">题目</th>
+        <th class="text-center">比赛</th>
         <th class="text-center">提交时间</th>
         <th class="text-center">状态</th>
         <th class="text-center">得分</th>
@@ -44,6 +45,16 @@ function onClickDownloadButton(submission_id: number) {
           <router-link :to="`/problem/${ item.problem.id }`">
             #{{ item.problem.id }}. {{ item.problem.name }}
           </router-link>
+        </td>
+        <td class="text-center">
+          <div v-if="item.contest">
+            <router-link :to="`/contest/${ item.contest.id }`">
+             #{{ item.contest.id }}. {{ item.contest.name }}
+            </router-link>
+          </div>
+          <div v-else style="color: #bbb">
+            /
+          </div>
         </td>
         <td class="text-center">
           {{ (new Date(item.submitTime)).toLocaleString() }}

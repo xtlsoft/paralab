@@ -9,7 +9,7 @@ import type { User, Problem } from '@paralab/proto';
 
 const route = useRoute()
 const problemId: number = parseInt(route.params.problemid as string);
-const contestId: number | undefined = route.params.contestId ? parseInt(route.params.contestId as string) : undefined;
+const contestId: number | undefined = route.params.contestid ? parseInt(route.params.contestid as string) : undefined;
 
 const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
@@ -17,7 +17,7 @@ const problem_name = ref('')
 const problem_description = ref('')
 const problem_acceptance = ref(0)
 
-const selected_file = ref<File[] | null>(null)
+const selected_file = ref<File[] | undefined>(undefined)
 
 onMounted(() => {
 	fetchWithAuthInJson(`/api/problem/${problemId}`, "GET", {}).then((res: Problem) => {
