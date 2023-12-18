@@ -1,8 +1,8 @@
 sol = read_solution("solution")
 
-print(sol)
+out = run_user_code(sol, input="1 2\n")
 
-if len(sol) > 10:
+if out == "3\n":
     result(score=100, status="AC", extra={})
 else:
     result(score=0, status="WA", extra={})
