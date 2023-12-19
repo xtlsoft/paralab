@@ -13,5 +13,8 @@
     {
       "path": "../proto"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "types": ["vitest/globals"]
+  }
 }

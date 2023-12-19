@@ -25,7 +25,11 @@ let contest: Ref<ContestWithProblemName> = ref({
 	isPublic: true,
 	metadata: {
 		description: "",
-		problems: []
+		problems: [{
+        id: 0,
+        weight: 100,
+        name: "some problem"
+    }]
 	}
 })
 
