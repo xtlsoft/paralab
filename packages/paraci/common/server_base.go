@@ -86,9 +86,15 @@ func abs(a int64) int64 {
 }
 
 func (s *ServerBase) CheckSignedRequest(req *restful.Request) error {
+	if req == nil {
+		return errors.New("nil request")
+	}
 	method := req.Request.Method
 	endpoint := req.Request.URL.String()
 	fullSignature := req.Request.Header.Get("X-ParaCI-Signature")
+	if len(fullSignature) < 16 {
+		return errors.New("invalid signature")
+	}
 	tStamp, err := hex.DecodeString(fullSignature[:16])
 	if err != nil {
 		return err

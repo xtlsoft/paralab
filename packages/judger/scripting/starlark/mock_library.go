@@ -18,7 +18,7 @@ func (e *StarlarkEngine) runUserCode( // TODO: this is just a mock
 	if err := star.UnpackArgs(b.Name(), args, kwArgs, "code", &code, "lang?", &lang, "input?", &input); err != nil {
 		return nil, err
 	}
-	tmpCode, err := os.CreateTemp(e.ctx.Conf.TempDir, "code")
+	tmpCode, err := os.CreateTemp(e.ctx.Conf.TempDir, "code*.cpp")
 	if err != nil {
 		return star.None, err
 	}
@@ -34,7 +34,7 @@ func (e *StarlarkEngine) runUserCode( // TODO: this is just a mock
 	}
 	tmpBin.Close()
 	defer os.Remove(tmpBin.Name())
-	err = exec.Command("g++", "-o", tmpBin.Name(), tmpCode.Name()).Run()
+	err = exec.Command("/usr/bin/g++", "-o", tmpBin.Name(), tmpCode.Name()).Run()
 	if err != nil {
 		return star.None, err
 	}
