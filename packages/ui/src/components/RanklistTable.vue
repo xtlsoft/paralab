@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router';
+import { useRouter, RouterLink } from 'vue-router';
 import type { ContestWithProblemName, Ranklist } from '@paralab/proto';
+
+import { rvalue_of_score, gvalue_of_score } from './ScoreColor';
+
+const router = useRouter();
 
 defineProps<{
   contest: ContestWithProblemName
   ranklist: Ranklist
 }>()
+
 </script>
 
 <template>
@@ -45,12 +50,14 @@ defineProps<{
             {{ item.username }}
           </RouterLink>
         </td>
-        <td class="text-center">
+        <td class="text-center"
+        :style="{ color: 'rgb(' + rvalue_of_score(item.score) + ', ' + gvalue_of_score(item.score) + ', 0)'}">
             {{ item.score }}
         </td>
         <td 
         v-for="detail in item.details"
-        class="text-center">
+        class="text-center"
+        :style="{ color: 'rgb(' + rvalue_of_score(detail.score) + ', ' + gvalue_of_score(detail.score) + ', 0)'}">
             {{ detail.score }}
         </td>
       </tr>

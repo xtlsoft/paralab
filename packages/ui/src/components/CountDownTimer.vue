@@ -3,16 +3,10 @@
 import { DeprecationTypes } from 'vue';
 import { ref, watch } from 'vue'
 
-const props = defineProps({
-  startTime: {
-	type: Number,
-	required: true,
-  },
-  endTime: {
-	type: Number,
-	required: true,
-  },
-})
+const props = defineProps<{
+  startTime : number, 
+  endTime : number
+}>()
 
 let status = ref("not-started")
 let prompt = ref("距离比赛开始还有")

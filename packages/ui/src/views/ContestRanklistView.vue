@@ -17,18 +17,78 @@ const cur_logged_in_user: User | undefined = getLoggedInUserInfo();
 
 let contest: Ref<ContestWithProblemName> = ref({
 	id: 0,
-	name: "",
+	name: "Contest",
 	startTime: 4e12,
 	endTime: 6e12,
 	isPublic: true,
 	metadata: {
 		description: "",
-		problems: []
+		problems: [{
+        id: 0,
+        weight: 100,
+        name: "A"
+    }]
 	}
 })
 
 let ranklist: Ref<Ranklist> = ref({
-	players: []
+	players: [
+    {
+      userId: 0,
+      username: "a",
+      score: 100,
+      details: [
+        {
+          score: 100,
+          submitTime: 4.25e12
+        }
+      ]
+    },
+    {
+      userId: 1,
+      username: "b",
+      score: 75,
+      details: [
+        {
+          score: 75,
+          submitTime: 4.5e12
+        }
+      ]
+    },
+    {
+      userId: 2,
+      username: "c",
+      score: 50,
+      details: [
+        {
+          score: 50,
+          submitTime: 4.75e12
+        }
+      ]
+    },
+    {
+      userId: 3,
+      username: "d",
+      score: 25,
+      details: [
+        {
+          score: 25,
+          submitTime: 5e12
+        }
+      ]
+    },
+    {
+      userId: 4,
+      username: "e",
+      score: 0,
+      details: [
+        {
+          score: 0,
+          submitTime: 5.25e12
+        }
+      ]
+    }
+  ]
 })
 
 onMounted(() => {
