@@ -88,12 +88,17 @@ type ClientBase struct {
 	hc   *http.Client
 }
 
-func NewClientBase(pool AddrPool, key string, timeout time.Duration) *ClientBase {
+func KeyStringToBytes(key string) []byte {
 	k, err := base64.StdEncoding.DecodeString(key)
 	if err != nil {
 		// TODO: better handling
-		k = []byte(key)
+		return []byte(key)
 	}
+	return k
+}
+
+func NewClientBase(pool AddrPool, key string, timeout time.Duration) *ClientBase {
+	k := KeyStringToBytes(key)
 	return &ClientBase{
 		pool: pool,
 		key:  k,
@@ -125,6 +130,9 @@ func (c *ClientBase) EndpointToURL(endpoint string) (string, error) {
 	uri := c.pool.Get()
 	if uri == "" {
 		return "", fmt.Errorf("no available endpoint")
+	}
+	if endpoint[0] != '/' {
+		endpoint = "/" + endpoint
 	}
 	if uri[len(uri)-1] != '/' {
 		uri += endpoint // endpoint should start with /
