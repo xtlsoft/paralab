@@ -82,7 +82,7 @@ function onClickSubmit() {
             <!-- options -->
             <v-list>
                 <v-list-item 
-                :to="`/problem/${problemId }`"
+                :to="contestId === undefined ? `/problem/${problemId}` : `/contest/${contestId}/problem/${problemId}`"
                 prepend-icon="mdi-arrow-left" 
                 title="返回题目"></v-list-item>
                 <v-list-item 
